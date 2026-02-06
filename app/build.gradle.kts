@@ -22,6 +22,12 @@ android {
 
         manifestPlaceholders["MAPS_API_KEY"] =
             project.findProperty("MAPS_API_KEY") as String? ?: "YOUR_API_KEY"
+
+        buildConfigField(
+            "String",
+            "WEATHER_API_KEY",
+            "\"${project.findProperty("WEATHER_API_KEY") as String? ?: ""}\""
+        )
     }
 
     buildTypes {
@@ -33,6 +39,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     compileOptions {
