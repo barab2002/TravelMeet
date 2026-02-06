@@ -296,7 +296,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_edit"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        style="@style/TravelMeet.Button.Outlined"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/spacing_sm"
@@ -309,7 +309,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_delete"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        style="@style/TravelMeet.Button.Outlined"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/spacing_sm"
