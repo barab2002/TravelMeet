@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.TravelMeet" parent="Theme.Material3.Dark.NoActionBar">
+    <style name="Theme.TravelMeet" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorOnPrimary">@color/white</item>
@@ -17,16 +17,15 @@
         <item name="android:textColorHint">@color/text_hint</item>
     </style>
 
-    <style name="TravelMeet.Button.Primary" parent="Widget.Material3.Button">
+    <style name="TravelMeet.Button.Primary" parent="Widget.MaterialComponents.Button">
         <item name="android:backgroundTint">@color/primary</item>
         <item name="android:textColor">@color/white</item>
-        <item name="cornerRadius">14dp</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textSize">16sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
-    <style name="TravelMeet.TextInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+    <style name="TravelMeet.TextInput" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="boxBackgroundColor">@color/surface</item>
         <item name="boxStrokeColor">@color/primary</item>
         <item name="boxCornerRadiusTopStart">14dp</item>
@@ -37,7 +36,7 @@
         <item name="android:textColorHint">@color/text_hint</item>
     </style>
 
-    <style name="TravelMeet.Card" parent="Widget.Material3.CardView.Filled">
+    <style name="TravelMeet.Card" parent="Widget.MaterialComponents.CardView">
         <item name="cardBackgroundColor">@color/card_background</item>
         <item name="cardCornerRadius">22dp</item>
         <item name="cardElevation">0dp</item>
