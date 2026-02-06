@@ -1,8 +1,9 @@
 package com.travelmeet.app.util
 
+import com.travelmeet.app.BuildConfig
+
 object Constants {
-    // Replace with your actual OpenWeatherMap API key
-    const val WEATHER_API_KEY = "YOUR_OPENWEATHERMAP_API_KEY"
+    val WEATHER_API_KEY: String = BuildConfig.WEATHER_API_KEY
 
     // Firebase Storage paths
     const val STORAGE_PROFILE_IMAGES = "profile_images"
