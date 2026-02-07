@@ -11,13 +11,41 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Hero Image -->
-        <ImageView
-            android:id="@+id/iv_hero_image"
+        <!-- Hero Image Carousel -->
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/hero_image_height"
-            android:scaleType="centerCrop"
-            android:contentDescription="Spot image" />
+            android:layout_height="@dimen/hero_image_height">
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/vp_hero_images"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <LinearLayout
+                android:id="@+id/dot_indicator_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginBottom="52dp"
+                android:orientation="horizontal"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_image_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:layout_margin="@dimen/spacing_md"
+                android:layout_marginTop="56dp"
+                android:background="#80000000"
+                android:paddingStart="8dp"
+                android:paddingTop="2dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="2dp"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:visibility="gone" />
+        </FrameLayout>
 
         <!-- Back Button -->
         <ImageView
