@@ -119,8 +119,10 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
         )
 
         // Load images
-        if (spot.imageUrl.isNotEmpty()) {
-            Picasso.get().load(spot.imageUrl).into(binding.ivHeroImage)
+        if (spot.imageUrls.isNotEmpty() && spot.imageUrls[0].isNotBlank()) {
+            Picasso.get().load(spot.imageUrls[0]).into(binding.ivHeroImage)
+        } else {
+            binding.ivHeroImage.setImageResource(R.drawable.bg_dashed_border) // Placeholder
         }
         if (!spot.userPhotoUrl.isNullOrEmpty()) {
             Picasso.get().load(spot.userPhotoUrl).into(binding.ivUserAvatar)

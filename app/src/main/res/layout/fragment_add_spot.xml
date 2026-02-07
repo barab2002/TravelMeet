@@ -25,33 +25,15 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <!-- Image Preview -->
-        <FrameLayout
-            android:id="@+id/image_preview_container"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_images"
             android:layout_width="0dp"
             android:layout_height="@dimen/image_preview_height"
             android:layout_marginTop="@dimen/spacing_md"
             android:background="@drawable/bg_dashed_border"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_header">
-
-            <ImageView
-                android:id="@+id/iv_preview"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:visibility="gone"
-                android:contentDescription="Image preview" />
-
-            <TextView
-                android:id="@+id/tv_add_image_hint"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/tap_to_add_image"
-                android:textColor="@color/text_hint"
-                android:textSize="16sp" />
-        </FrameLayout>
+            app:layout_constraintTop_toBottomOf="@id/tv_header" />
 
         <!-- Image Buttons -->
         <LinearLayout
@@ -62,11 +44,11 @@
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/image_preview_container">
+            app:layout_constraintTop_toBottomOf="@id/rv_images">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_gallery"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/TravelMeet.Button.Outlined"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/spacing_sm"
@@ -79,7 +61,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_camera"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/TravelMeet.Button.Outlined"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_sm"
@@ -133,6 +115,26 @@
                 android:textColor="@color/text_primary" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Manual Location Input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_location_manual"
+            style="@style/TravelMeet.TextInput"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:hint="@string/location_manual"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/til_description">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_location_manual"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:textColor="@color/text_primary" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <!-- Location Card -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/location_card"
@@ -144,7 +146,7 @@
             app:cardElevation="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/til_description">
+            app:layout_constraintTop_toBottomOf="@id/til_location_manual">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -187,7 +189,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_get_location"
-                    style="@style/Widget.Material3.Button.TextButton"
+                    style="@style/TravelMeet.Button.Text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/get_location"

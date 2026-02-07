@@ -31,7 +31,6 @@ class ProfileFragment : Fragment() {
     private val spotViewModel: SpotViewModel by activityViewModels()
     private lateinit var mySpotsAdapter: SpotAdapter
     private var selectedPhotoUri: Uri? = null
-    private var isMySpotsVisible = false
 
     private val photoPickerLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
@@ -58,11 +57,16 @@ class ProfileFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        mySpotsAdapter = SpotAdapter { spot ->
-            val action = ProfileFragmentDirections
-                .actionProfileFragmentToSpotDetailFragment(spot.id)
-            findNavController().navigate(action)
-        }
+        mySpotsAdapter = SpotAdapter(
+            onItemClick = { spot ->
+                val action = ProfileFragmentDirections
+                    .actionProfileFragmentToSpotDetailFragment(spot.id)
+                findNavController().navigate(action)
+            },
+            onLikeClick = { spot ->
+                spotViewModel.toggleLike(spot.id)
+            }
+        )
         binding.rvMySpots.apply {
             adapter = mySpotsAdapter
             layoutManager = LinearLayoutManager(requireContext())
@@ -75,8 +79,7 @@ class ProfileFragment : Fragment() {
         }
 
         binding.cardMySpots.setOnClickListener {
-            isMySpotsVisible = !isMySpotsVisible
-            binding.rvMySpots.visibility = if (isMySpotsVisible) View.VISIBLE else View.GONE
+            findNavController().navigate(R.id.action_profileFragment_to_mySpotsFragment)
         }
 
         binding.btnLogout.setOnClickListener {

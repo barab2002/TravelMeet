@@ -97,6 +97,9 @@ dependencies {
 
     // Picasso (image loading)
     implementation("com.squareup.picasso:picasso:2.8")
+    
+    // Lottie
+    implementation("com.airbnb.android:lottie:5.2.0")
 
     // CircleImageView
     implementation("de.hdodenhof:circleimageview:3.1.0")
