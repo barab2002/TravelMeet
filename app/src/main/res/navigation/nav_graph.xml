@@ -56,7 +56,13 @@
         android:id="@+id/addSpotFragment"
         android:name="com.travelmeet.app.ui.addspot.AddSpotFragment"
         android:label="Add Spot"
-        tools:layout="@layout/fragment_add_spot" />
+        tools:layout="@layout/fragment_add_spot">
+
+        <argument
+            android:name="spotId"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
 
     <fragment
         android:id="@+id/spotDetailFragment"

@@ -86,12 +86,15 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
         spotId: String,
         title: String,
         description: String,
-        newImageUri: Uri?
+        newImageUris: List<Uri>,
+        latitude: Double,
+        longitude: Double,
+        locationName: String?
     ) {
         _updateSpotState.value = Resource.Loading()
         viewModelScope.launch {
             _updateSpotState.value = repository.updateSpot(
-                spotId, title, description, newImageUri
+                spotId, title, description, newImageUris, latitude, longitude, locationName
             )
         }
     }
