@@ -150,8 +150,10 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
             when (resource) {
                 is Resource.Loading -> {
                     binding.weatherProgress.visibility = View.VISIBLE
+                    binding.weatherProgress.playAnimation()
                 }
                 is Resource.Success -> {
+                    binding.weatherProgress.cancelAnimation()
                     binding.weatherProgress.visibility = View.GONE
                     resource.data?.let { weather ->
                         val current = weather.current
@@ -165,6 +167,7 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
                     }
                 }
                 is Resource.Error -> {
+                    binding.weatherProgress.cancelAnimation()
                     binding.weatherProgress.visibility = View.GONE
                     binding.tvWeatherTemp.text = "N/A"
                     binding.tvTemperature.text = "--"

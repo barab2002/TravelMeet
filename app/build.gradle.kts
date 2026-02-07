@@ -25,10 +25,11 @@ android {
         val localProps = Properties().apply {
             if (localPropsFile.exists()) load(localPropsFile.inputStream())
         }
-        manifestPlaceholders["MAPS_API_KEY"] =
-            localProps.getProperty("MAPS_API_KEY")
-                ?: project.findProperty("MAPS_API_KEY") as String?
-                ?: "YOUR_API_KEY"
+        val mapsApiKey = localProps.getProperty("MAPS_API_KEY")
+            ?: project.findProperty("MAPS_API_KEY") as String?
+            ?: "YOUR_API_KEY"
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
+        buildConfigField("String", "MAPS_API_KEY", "\"$mapsApiKey\"")
     }
 
     buildTypes {
@@ -88,9 +89,10 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-storage-ktx")
 
-    // Google Maps & Location
+    // Google Maps, Location & Places
     implementation("com.google.android.gms:play-services-maps:18.1.0")
     implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.android.libraries.places:places:3.4.0")
 
     // Retrofit + Gson
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
