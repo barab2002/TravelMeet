@@ -12,7 +12,8 @@ import com.travelmeet.app.databinding.ItemSpotBinding
 import com.travelmeet.app.util.TimeUtils
 
 class SpotAdapter(
-    private val onItemClick: (SpotEntity) -> Unit
+    private val onItemClick: (SpotEntity) -> Unit,
+    private val onLikeClick: (SpotEntity) -> Unit
 ) : ListAdapter<SpotEntity, SpotAdapter.SpotViewHolder>(SpotDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SpotViewHolder {
@@ -37,6 +38,12 @@ class SpotAdapter(
                     onItemClick(getItem(position))
                 }
             }
+            binding.ivLike.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onLikeClick(getItem(position))
+                }
+            }
         }
 
         fun bind(spot: SpotEntity) {
@@ -50,12 +57,14 @@ class SpotAdapter(
             )
 
             // Load spot image
-            if (spot.imageUrl.isNotEmpty()) {
+            if (spot.imageUrls.isNotEmpty() && spot.imageUrls[0].isNotBlank()) {
                 Picasso.get()
-                    .load(spot.imageUrl)
+                    .load(spot.imageUrls[0])
                     .placeholder(R.drawable.bg_dashed_border)
                     .error(R.drawable.bg_dashed_border)
                     .into(binding.ivSpotImage)
+            } else {
+                binding.ivSpotImage.setImageResource(R.drawable.bg_dashed_border)
             }
 
             // Load user avatar
@@ -65,6 +74,9 @@ class SpotAdapter(
                     .placeholder(R.drawable.ic_profile)
                     .into(binding.ivUserAvatar)
             }
+
+            val likeIcon = if (spot.isLikedByCurrentUser) R.drawable.ic_like_filled else R.drawable.ic_like_outline
+            binding.ivLike.setImageResource(likeIcon)
         }
     }
 
