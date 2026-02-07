@@ -1,0 +1,355 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.travelmeet.app"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="24"
+8-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml
+9        android:targetSdkVersion="33" />
+9-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml
+10
+11    <!-- Permissions -->
+12    <uses-permission android:name="android.permission.INTERNET" />
+12-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:6:5-67
+12-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:6:22-64
+13    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+13-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:7:5-79
+13-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:7:22-76
+14    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+14-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:8:5-79
+14-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:8:22-76
+15    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+15-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:9:5-81
+15-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:9:22-78
+16    <uses-permission android:name="android.permission.CAMERA" />
+16-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:10:5-65
+16-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:10:22-62
+17    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+17-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:11:5-76
+17-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:11:22-73
+18    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+18-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:12:5-80
+18-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:12:22-77
+19    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+19-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:13:5-81
+19-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:13:22-78
+20
+21    <uses-feature
+21-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:15:5-85
+22        android:name="android.hardware.camera"
+22-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:15:19-57
+23        android:required="false" />
+23-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:15:58-82
+24    <uses-feature
+24-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:16:5-91
+25        android:name="android.hardware.location.gps"
+25-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:16:19-63
+26        android:required="false" />
+26-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:16:64-88
+27    <uses-feature
+27-->[com.google.android.gms:play-services-maps:18.1.0] C:\Users\barab\.gradle\caches\transforms-3\943e6f504adca94a9136c4e42cfbc744\transformed\jetified-play-services-maps-18.1.0\AndroidManifest.xml:26:5-28:35
+28        android:glEsVersion="0x00020000"
+28-->[com.google.android.gms:play-services-maps:18.1.0] C:\Users\barab\.gradle\caches\transforms-3\943e6f504adca94a9136c4e42cfbc744\transformed\jetified-play-services-maps-18.1.0\AndroidManifest.xml:27:9-41
+29        android:required="true" />
+29-->[com.google.android.gms:play-services-maps:18.1.0] C:\Users\barab\.gradle\caches\transforms-3\943e6f504adca94a9136c4e42cfbc744\transformed\jetified-play-services-maps-18.1.0\AndroidManifest.xml:28:9-32
+30
+31    <queries>
+31-->[com.google.android.gms:play-services-maps:18.1.0] C:\Users\barab\.gradle\caches\transforms-3\943e6f504adca94a9136c4e42cfbc744\transformed\jetified-play-services-maps-18.1.0\AndroidManifest.xml:30:5-34:15
+32
+33        <!-- Needs to be explicitly declared on Android R+ -->
+34        <package android:name="com.google.android.apps.maps" />
+34-->[com.google.android.gms:play-services-maps:18.1.0] C:\Users\barab\.gradle\caches\transforms-3\943e6f504adca94a9136c4e42cfbc744\transformed\jetified-play-services-maps-18.1.0\AndroidManifest.xml:33:9-64
+34-->[com.google.android.gms:play-services-maps:18.1.0] C:\Users\barab\.gradle\caches\transforms-3\943e6f504adca94a9136c4e42cfbc744\transformed\jetified-play-services-maps-18.1.0\AndroidManifest.xml:33:18-61
+35    </queries>
+36
+37    <permission
+37-->[androidx.core:core:1.9.0] C:\Users\barab\.gradle\caches\transforms-3\327d6550e2c44397c92816f69d74c324\transformed\core-1.9.0\AndroidManifest.xml:22:5-24:47
+38        android:name="com.travelmeet.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+38-->[androidx.core:core:1.9.0] C:\Users\barab\.gradle\caches\transforms-3\327d6550e2c44397c92816f69d74c324\transformed\core-1.9.0\AndroidManifest.xml:23:9-81
+39        android:protectionLevel="signature" />
+39-->[androidx.core:core:1.9.0] C:\Users\barab\.gradle\caches\transforms-3\327d6550e2c44397c92816f69d74c324\transformed\core-1.9.0\AndroidManifest.xml:24:9-44
+40
+41    <uses-permission android:name="com.travelmeet.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+41-->[androidx.core:core:1.9.0] C:\Users\barab\.gradle\caches\transforms-3\327d6550e2c44397c92816f69d74c324\transformed\core-1.9.0\AndroidManifest.xml:26:5-97
+41-->[androidx.core:core:1.9.0] C:\Users\barab\.gradle\caches\transforms-3\327d6550e2c44397c92816f69d74c324\transformed\core-1.9.0\AndroidManifest.xml:26:22-94
+42
+43    <application
+43-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:18:5-52:19
+44        android:name="com.travelmeet.app.TravelMeetApp"
+44-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:19:9-38
+45        android:allowBackup="true"
+45-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:20:9-35
+46        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+46-->[androidx.core:core:1.9.0] C:\Users\barab\.gradle\caches\transforms-3\327d6550e2c44397c92816f69d74c324\transformed\core-1.9.0\AndroidManifest.xml:28:18-86
+47        android:debuggable="true"
+48        android:extractNativeLibs="false"
+49        android:icon="@mipmap/ic_launcher"
+49-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:21:9-43
+50        android:label="@string/app_name"
+50-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:22:9-41
+51        android:roundIcon="@mipmap/ic_launcher_round"
+51-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:23:9-54
+52        android:supportsRtl="true"
+52-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:24:9-35
+53        android:testOnly="true"
+54        android:theme="@style/Theme.TravelMeet" >
+54-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:25:9-48
+55
+56        <!-- Google Maps API Key -->
+57        <meta-data
+58            android:name="com.google.android.geo.API_KEY"
+58-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:29:13-58
+59            android:value="AIzaSyARleb1sfXn8M2IRtx6-tbTu2yGr56TAuo" />
+59-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:30:13-44
+60
+61        <activity
+61-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:32:9-39:20
+62            android:name="com.travelmeet.app.ui.MainActivity"
+62-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:33:13-44
+63            android:exported="true" >
+63-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:34:13-36
+64            <intent-filter>
+64-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:35:13-38:29
+65                <action android:name="android.intent.action.MAIN" />
+65-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:36:17-69
+65-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:36:25-66
+66
+67                <category android:name="android.intent.category.LAUNCHER" />
+67-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:37:17-77
+67-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:37:27-74
+68            </intent-filter>
+69        </activity>
+70
+71        <!-- FileProvider for camera images -->
+72        <provider
+73            android:name="androidx.core.content.FileProvider"
+73-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:43:13-62
+74            android:authorities="com.travelmeet.app.fileprovider"
+74-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:44:13-64
+75            android:exported="false"
+75-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:45:13-37
+76            android:grantUriPermissions="true" >
+76-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:46:13-47
+77            <meta-data
+77-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:47:13-49:54
+78                android:name="android.support.FILE_PROVIDER_PATHS"
+78-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:48:17-67
+79                android:resource="@xml/file_paths" />
+79-->C:\Users\barab\Desktop\TravelMeet\app\src\main\AndroidManifest.xml:49:17-51
+80        </provider>
+81
+82        <!-- Needs to be explicitly declared on P+ -->
+83        <uses-library
+83-->[com.google.android.gms:play-services-maps:18.1.0] C:\Users\barab\.gradle\caches\transforms-3\943e6f504adca94a9136c4e42cfbc744\transformed\jetified-play-services-maps-18.1.0\AndroidManifest.xml:39:9-41:40
+84            android:name="org.apache.http.legacy"
+84-->[com.google.android.gms:play-services-maps:18.1.0] C:\Users\barab\.gradle\caches\transforms-3\943e6f504adca94a9136c4e42cfbc744\transformed\jetified-play-services-maps-18.1.0\AndroidManifest.xml:40:13-50
+85            android:required="false" />
+85-->[com.google.android.gms:play-services-maps:18.1.0] C:\Users\barab\.gradle\caches\transforms-3\943e6f504adca94a9136c4e42cfbc744\transformed\jetified-play-services-maps-18.1.0\AndroidManifest.xml:41:13-37
+86
+87        <service
+87-->[com.google.firebase:firebase-storage-ktx:20.1.0] C:\Users\barab\.gradle\caches\transforms-3\e6facbe8d0060885e050eeb73a191938\transformed\jetified-firebase-storage-ktx-20.1.0\AndroidManifest.xml:11:9-17:19
+88            android:name="com.google.firebase.components.ComponentDiscoveryService"
+88-->[com.google.firebase:firebase-storage-ktx:20.1.0] C:\Users\barab\.gradle\caches\transforms-3\e6facbe8d0060885e050eeb73a191938\transformed\jetified-firebase-storage-ktx-20.1.0\AndroidManifest.xml:12:13-84
+89            android:directBootAware="true"
+89-->[com.google.firebase:firebase-common:20.3.2] C:\Users\barab\.gradle\caches\transforms-3\0f70ab99a8698a047963bb2553ae03b0\transformed\jetified-firebase-common-20.3.2\AndroidManifest.xml:34:13-43
+90            android:exported="false" >
+90-->[com.google.firebase:firebase-storage-ktx:20.1.0] C:\Users\barab\.gradle\caches\transforms-3\e6facbe8d0060885e050eeb73a191938\transformed\jetified-firebase-storage-ktx-20.1.0\AndroidManifest.xml:13:13-37
+91            <meta-data
+91-->[com.google.firebase:firebase-storage-ktx:20.1.0] C:\Users\barab\.gradle\caches\transforms-3\e6facbe8d0060885e050eeb73a191938\transformed\jetified-firebase-storage-ktx-20.1.0\AndroidManifest.xml:14:13-16:85
+92                android:name="com.google.firebase.components:com.google.firebase.storage.ktx.FirebaseStorageKtxRegistrar"
+92-->[com.google.firebase:firebase-storage-ktx:20.1.0] C:\Users\barab\.gradle\caches\transforms-3\e6facbe8d0060885e050eeb73a191938\transformed\jetified-firebase-storage-ktx-20.1.0\AndroidManifest.xml:15:17-122
+93                android:value="com.google.firebase.components.ComponentRegistrar" />
+93-->[com.google.firebase:firebase-storage-ktx:20.1.0] C:\Users\barab\.gradle\caches\transforms-3\e6facbe8d0060885e050eeb73a191938\transformed\jetified-firebase-storage-ktx-20.1.0\AndroidManifest.xml:16:17-82
+94            <meta-data
+94-->[com.google.firebase:firebase-storage:20.1.0] C:\Users\barab\.gradle\caches\transforms-3\a8c11b3f4d4ebf11d431a91dfb820628\transformed\jetified-firebase-storage-20.1.0\AndroidManifest.xml:32:13-34:85
+95                android:name="com.google.firebase.components:com.google.firebase.storage.StorageRegistrar"
+95-->[com.google.firebase:firebase-storage:20.1.0] C:\Users\barab\.gradle\caches\transforms-3\a8c11b3f4d4ebf11d431a91dfb820628\transformed\jetified-firebase-storage-20.1.0\AndroidManifest.xml:33:17-107
+96                android:value="com.google.firebase.components.ComponentRegistrar" />
+96-->[com.google.firebase:firebase-storage:20.1.0] C:\Users\barab\.gradle\caches\transforms-3\a8c11b3f4d4ebf11d431a91dfb820628\transformed\jetified-firebase-storage-20.1.0\AndroidManifest.xml:34:17-82
+97            <meta-data
+97-->[com.google.firebase:firebase-firestore-ktx:24.5.0] C:\Users\barab\.gradle\caches\transforms-3\164213058a0047fc53486b3c91f789d2\transformed\jetified-firebase-firestore-ktx-24.5.0\AndroidManifest.xml:14:13-16:85
+98                android:name="com.google.firebase.components:com.google.firebase.firestore.ktx.FirebaseFirestoreKtxRegistrar"
+98-->[com.google.firebase:firebase-firestore-ktx:24.5.0] C:\Users\barab\.gradle\caches\transforms-3\164213058a0047fc53486b3c91f789d2\transformed\jetified-firebase-firestore-ktx-24.5.0\AndroidManifest.xml:15:17-126
+99                android:value="com.google.firebase.components.ComponentRegistrar" />
+99-->[com.google.firebase:firebase-firestore-ktx:24.5.0] C:\Users\barab\.gradle\caches\transforms-3\164213058a0047fc53486b3c91f789d2\transformed\jetified-firebase-firestore-ktx-24.5.0\AndroidManifest.xml:16:17-82
+100            <meta-data
+100-->[com.google.firebase:firebase-firestore:24.5.0] C:\Users\barab\.gradle\caches\transforms-3\ad92e5a1e8d3367d54f7022d243c0111\transformed\jetified-firebase-firestore-24.5.0\AndroidManifest.xml:19:13-21:85
+101                android:name="com.google.firebase.components:com.google.firebase.firestore.FirestoreRegistrar"
+101-->[com.google.firebase:firebase-firestore:24.5.0] C:\Users\barab\.gradle\caches\transforms-3\ad92e5a1e8d3367d54f7022d243c0111\transformed\jetified-firebase-firestore-24.5.0\AndroidManifest.xml:20:17-111
+102                android:value="com.google.firebase.components.ComponentRegistrar" />
+102-->[com.google.firebase:firebase-firestore:24.5.0] C:\Users\barab\.gradle\caches\transforms-3\ad92e5a1e8d3367d54f7022d243c0111\transformed\jetified-firebase-firestore-24.5.0\AndroidManifest.xml:21:17-82
+103            <meta-data
+103-->[com.google.firebase:firebase-auth-ktx:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\1426e8a2501ae84680c9e1a2495ca130\transformed\jetified-firebase-auth-ktx-21.3.0\AndroidManifest.xml:11:13-13:85
+104                android:name="com.google.firebase.components:com.google.firebase.auth.ktx.FirebaseAuthKtxRegistrar"
+104-->[com.google.firebase:firebase-auth-ktx:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\1426e8a2501ae84680c9e1a2495ca130\transformed\jetified-firebase-auth-ktx-21.3.0\AndroidManifest.xml:12:17-116
+105                android:value="com.google.firebase.components.ComponentRegistrar" />
+105-->[com.google.firebase:firebase-auth-ktx:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\1426e8a2501ae84680c9e1a2495ca130\transformed\jetified-firebase-auth-ktx-21.3.0\AndroidManifest.xml:13:17-82
+106            <meta-data
+106-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:69:13-71:85
+107                android:name="com.google.firebase.components:com.google.firebase.auth.FirebaseAuthRegistrar"
+107-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:70:17-109
+108                android:value="com.google.firebase.components.ComponentRegistrar" />
+108-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:71:17-82
+109            <meta-data
+109-->[com.google.firebase:firebase-common-ktx:20.3.2] C:\Users\barab\.gradle\caches\transforms-3\054a9c615e0d0e8a6b82c1ba65eb53db\transformed\jetified-firebase-common-ktx-20.3.2\AndroidManifest.xml:14:13-16:85
+110                android:name="com.google.firebase.components:com.google.firebase.ktx.FirebaseCommonKtxRegistrar"
+110-->[com.google.firebase:firebase-common-ktx:20.3.2] C:\Users\barab\.gradle\caches\transforms-3\054a9c615e0d0e8a6b82c1ba65eb53db\transformed\jetified-firebase-common-ktx-20.3.2\AndroidManifest.xml:15:17-113
+111                android:value="com.google.firebase.components.ComponentRegistrar" />
+111-->[com.google.firebase:firebase-common-ktx:20.3.2] C:\Users\barab\.gradle\caches\transforms-3\054a9c615e0d0e8a6b82c1ba65eb53db\transformed\jetified-firebase-common-ktx-20.3.2\AndroidManifest.xml:16:17-82
+112        </service>
+113
+114        <activity
+114-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:29:9-46:20
+115            android:name="com.google.firebase.auth.internal.GenericIdpActivity"
+115-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:30:13-80
+116            android:excludeFromRecents="true"
+116-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:31:13-46
+117            android:exported="true"
+117-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:32:13-36
+118            android:launchMode="singleTask"
+118-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:33:13-44
+119            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+119-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:34:13-72
+120            <intent-filter>
+120-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:35:13-45:29
+121                <action android:name="android.intent.action.VIEW" />
+121-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:36:17-69
+121-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:36:25-66
+122
+123                <category android:name="android.intent.category.DEFAULT" />
+123-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:38:17-76
+123-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:38:27-73
+124                <category android:name="android.intent.category.BROWSABLE" />
+124-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:39:17-78
+124-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:39:27-75
+125
+126                <data
+126-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:41:17-44:51
+127                    android:host="firebase.auth"
+127-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:42:21-49
+128                    android:path="/"
+128-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:43:21-37
+129                    android:scheme="genericidp" />
+129-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:44:21-48
+130            </intent-filter>
+131        </activity>
+132        <activity
+132-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:47:9-64:20
+133            android:name="com.google.firebase.auth.internal.RecaptchaActivity"
+133-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:48:13-79
+134            android:excludeFromRecents="true"
+134-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:49:13-46
+135            android:exported="true"
+135-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:50:13-36
+136            android:launchMode="singleTask"
+136-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:51:13-44
+137            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+137-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:52:13-72
+138            <intent-filter>
+138-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:53:13-63:29
+139                <action android:name="android.intent.action.VIEW" />
+139-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:36:17-69
+139-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:36:25-66
+140
+141                <category android:name="android.intent.category.DEFAULT" />
+141-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:38:17-76
+141-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:38:27-73
+142                <category android:name="android.intent.category.BROWSABLE" />
+142-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:39:17-78
+142-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:39:27-75
+143
+144                <data
+144-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:41:17-44:51
+145                    android:host="firebase.auth"
+145-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:42:21-49
+146                    android:path="/"
+146-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:43:21-37
+147                    android:scheme="recaptcha" />
+147-->[com.google.firebase:firebase-auth:21.3.0] C:\Users\barab\.gradle\caches\transforms-3\84db4fb5253fd816178e636fc1cccdc4\transformed\jetified-firebase-auth-21.3.0\AndroidManifest.xml:44:21-48
+148            </intent-filter>
+149        </activity>
+150        <activity
+150-->[com.google.android.gms:play-services-base:18.1.0] C:\Users\barab\.gradle\caches\transforms-3\591175ee49aa9db4ff1b41c2c6b7d9f6\transformed\jetified-play-services-base-18.1.0\AndroidManifest.xml:20:9-22:45
+151            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+151-->[com.google.android.gms:play-services-base:18.1.0] C:\Users\barab\.gradle\caches\transforms-3\591175ee49aa9db4ff1b41c2c6b7d9f6\transformed\jetified-play-services-base-18.1.0\AndroidManifest.xml:20:19-85
+152            android:exported="false"
+152-->[com.google.android.gms:play-services-base:18.1.0] C:\Users\barab\.gradle\caches\transforms-3\591175ee49aa9db4ff1b41c2c6b7d9f6\transformed\jetified-play-services-base-18.1.0\AndroidManifest.xml:22:19-43
+153            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+153-->[com.google.android.gms:play-services-base:18.1.0] C:\Users\barab\.gradle\caches\transforms-3\591175ee49aa9db4ff1b41c2c6b7d9f6\transformed\jetified-play-services-base-18.1.0\AndroidManifest.xml:21:19-78
+154
+155        <provider
+155-->[com.google.firebase:firebase-common:20.3.2] C:\Users\barab\.gradle\caches\transforms-3\0f70ab99a8698a047963bb2553ae03b0\transformed\jetified-firebase-common-20.3.2\AndroidManifest.xml:25:9-30:39
+156            android:name="com.google.firebase.provider.FirebaseInitProvider"
+156-->[com.google.firebase:firebase-common:20.3.2] C:\Users\barab\.gradle\caches\transforms-3\0f70ab99a8698a047963bb2553ae03b0\transformed\jetified-firebase-common-20.3.2\AndroidManifest.xml:26:13-77
+157            android:authorities="com.travelmeet.app.firebaseinitprovider"
+157-->[com.google.firebase:firebase-common:20.3.2] C:\Users\barab\.gradle\caches\transforms-3\0f70ab99a8698a047963bb2553ae03b0\transformed\jetified-firebase-common-20.3.2\AndroidManifest.xml:27:13-72
+158            android:directBootAware="true"
+158-->[com.google.firebase:firebase-common:20.3.2] C:\Users\barab\.gradle\caches\transforms-3\0f70ab99a8698a047963bb2553ae03b0\transformed\jetified-firebase-common-20.3.2\AndroidManifest.xml:28:13-43
+159            android:exported="false"
+159-->[com.google.firebase:firebase-common:20.3.2] C:\Users\barab\.gradle\caches\transforms-3\0f70ab99a8698a047963bb2553ae03b0\transformed\jetified-firebase-common-20.3.2\AndroidManifest.xml:29:13-37
+160            android:initOrder="100" />
+160-->[com.google.firebase:firebase-common:20.3.2] C:\Users\barab\.gradle\caches\transforms-3\0f70ab99a8698a047963bb2553ae03b0\transformed\jetified-firebase-common-20.3.2\AndroidManifest.xml:30:13-36
+161
+162        <meta-data
+162-->[com.google.android.gms:play-services-basement:18.1.0] C:\Users\barab\.gradle\caches\transforms-3\3c9ef890c23c5c702710df636a650052\transformed\jetified-play-services-basement-18.1.0\AndroidManifest.xml:21:9-23:69
+163            android:name="com.google.android.gms.version"
+163-->[com.google.android.gms:play-services-basement:18.1.0] C:\Users\barab\.gradle\caches\transforms-3\3c9ef890c23c5c702710df636a650052\transformed\jetified-play-services-basement-18.1.0\AndroidManifest.xml:22:13-58
+164            android:value="@integer/google_play_services_version" />
+164-->[com.google.android.gms:play-services-basement:18.1.0] C:\Users\barab\.gradle\caches\transforms-3\3c9ef890c23c5c702710df636a650052\transformed\jetified-play-services-basement-18.1.0\AndroidManifest.xml:23:13-66
+165
+166        <uses-library
+166-->[androidx.window:window:1.0.0] C:\Users\barab\.gradle\caches\transforms-3\f97c6411fca8d2425a7adbe12dadc3ce\transformed\jetified-window-1.0.0\AndroidManifest.xml:25:9-27:40
+167            android:name="androidx.window.extensions"
+167-->[androidx.window:window:1.0.0] C:\Users\barab\.gradle\caches\transforms-3\f97c6411fca8d2425a7adbe12dadc3ce\transformed\jetified-window-1.0.0\AndroidManifest.xml:26:13-54
+168            android:required="false" />
+168-->[androidx.window:window:1.0.0] C:\Users\barab\.gradle\caches\transforms-3\f97c6411fca8d2425a7adbe12dadc3ce\transformed\jetified-window-1.0.0\AndroidManifest.xml:27:13-37
+169        <uses-library
+169-->[androidx.window:window:1.0.0] C:\Users\barab\.gradle\caches\transforms-3\f97c6411fca8d2425a7adbe12dadc3ce\transformed\jetified-window-1.0.0\AndroidManifest.xml:28:9-30:40
+170            android:name="androidx.window.sidecar"
+170-->[androidx.window:window:1.0.0] C:\Users\barab\.gradle\caches\transforms-3\f97c6411fca8d2425a7adbe12dadc3ce\transformed\jetified-window-1.0.0\AndroidManifest.xml:29:13-51
+171            android:required="false" />
+171-->[androidx.window:window:1.0.0] C:\Users\barab\.gradle\caches\transforms-3\f97c6411fca8d2425a7adbe12dadc3ce\transformed\jetified-window-1.0.0\AndroidManifest.xml:30:13-37
+172
+173        <service
+173-->[androidx.room:room-runtime:2.5.0] C:\Users\barab\.gradle\caches\transforms-3\3840708e91201b3c6ab1f9c40a0e9a5a\transformed\room-runtime-2.5.0\AndroidManifest.xml:24:9-28:63
+174            android:name="androidx.room.MultiInstanceInvalidationService"
+174-->[androidx.room:room-runtime:2.5.0] C:\Users\barab\.gradle\caches\transforms-3\3840708e91201b3c6ab1f9c40a0e9a5a\transformed\room-runtime-2.5.0\AndroidManifest.xml:25:13-74
+175            android:directBootAware="true"
+175-->[androidx.room:room-runtime:2.5.0] C:\Users\barab\.gradle\caches\transforms-3\3840708e91201b3c6ab1f9c40a0e9a5a\transformed\room-runtime-2.5.0\AndroidManifest.xml:26:13-43
+176            android:exported="false" />
+176-->[androidx.room:room-runtime:2.5.0] C:\Users\barab\.gradle\caches\transforms-3\3840708e91201b3c6ab1f9c40a0e9a5a\transformed\room-runtime-2.5.0\AndroidManifest.xml:27:13-37
+177
+178        <provider
+178-->[androidx.emoji2:emoji2:1.2.0] C:\Users\barab\.gradle\caches\transforms-3\566af505aecb7c72b5cec167c7682f63\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+179            android:name="androidx.startup.InitializationProvider"
+179-->[androidx.emoji2:emoji2:1.2.0] C:\Users\barab\.gradle\caches\transforms-3\566af505aecb7c72b5cec167c7682f63\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:25:13-67
+180            android:authorities="com.travelmeet.app.androidx-startup"
+180-->[androidx.emoji2:emoji2:1.2.0] C:\Users\barab\.gradle\caches\transforms-3\566af505aecb7c72b5cec167c7682f63\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:26:13-68
+181            android:exported="false" >
+181-->[androidx.emoji2:emoji2:1.2.0] C:\Users\barab\.gradle\caches\transforms-3\566af505aecb7c72b5cec167c7682f63\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:27:13-37
+182            <meta-data
+182-->[androidx.emoji2:emoji2:1.2.0] C:\Users\barab\.gradle\caches\transforms-3\566af505aecb7c72b5cec167c7682f63\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+183                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+183-->[androidx.emoji2:emoji2:1.2.0] C:\Users\barab\.gradle\caches\transforms-3\566af505aecb7c72b5cec167c7682f63\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:30:17-75
+184                android:value="androidx.startup" />
+184-->[androidx.emoji2:emoji2:1.2.0] C:\Users\barab\.gradle\caches\transforms-3\566af505aecb7c72b5cec167c7682f63\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:31:17-49
+185            <meta-data
+185-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\barab\.gradle\caches\transforms-3\1d079f43fbf530a913319b96ed3d85bf\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:31:13-33:52
+186                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+186-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\barab\.gradle\caches\transforms-3\1d079f43fbf530a913319b96ed3d85bf\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:32:17-78
+187                android:value="androidx.startup" />
+187-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\barab\.gradle\caches\transforms-3\1d079f43fbf530a913319b96ed3d85bf\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:33:17-49
+188        </provider>
+189        <provider
+189-->[com.squareup.picasso:picasso:2.8] C:\Users\barab\.gradle\caches\transforms-3\bfa98af710ba6c8e04ad0dc9e80f2f37\transformed\jetified-picasso-2.8\AndroidManifest.xml:8:9-11:40
+190            android:name="com.squareup.picasso.PicassoProvider"
+190-->[com.squareup.picasso:picasso:2.8] C:\Users\barab\.gradle\caches\transforms-3\bfa98af710ba6c8e04ad0dc9e80f2f37\transformed\jetified-picasso-2.8\AndroidManifest.xml:9:13-64
+191            android:authorities="com.travelmeet.app.com.squareup.picasso"
+191-->[com.squareup.picasso:picasso:2.8] C:\Users\barab\.gradle\caches\transforms-3\bfa98af710ba6c8e04ad0dc9e80f2f37\transformed\jetified-picasso-2.8\AndroidManifest.xml:10:13-72
+192            android:exported="false" />
+192-->[com.squareup.picasso:picasso:2.8] C:\Users\barab\.gradle\caches\transforms-3\bfa98af710ba6c8e04ad0dc9e80f2f37\transformed\jetified-picasso-2.8\AndroidManifest.xml:11:13-37
+193    </application>
+194
+195</manifest>

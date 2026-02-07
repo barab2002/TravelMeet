@@ -1,0 +1,58 @@
+[
+    {
+        "merged": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-mergeDebugResources-60:\\layout\\activity_main.xml",
+        "source": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-main-63:\\layout\\activity_main.xml"
+    },
+    {
+        "merged": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-mergeDebugResources-60:\\layout\\item_spot.xml",
+        "source": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-main-63:\\layout\\item_spot.xml"
+    },
+    {
+        "merged": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-mergeDebugResources-60:\\layout\\fragment_edit_spot.xml",
+        "source": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-main-63:\\layout\\fragment_edit_spot.xml"
+    },
+    {
+        "merged": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-mergeDebugResources-60:\\layout\\fragment_add_spot.xml",
+        "source": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-main-63:\\layout\\fragment_add_spot.xml"
+    },
+    {
+        "merged": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-mergeDebugResources-60:\\layout\\fragment_profile.xml",
+        "source": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-main-63:\\layout\\fragment_profile.xml"
+    },
+    {
+        "merged": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-mergeDebugResources-60:\\layout\\fragment_feed.xml",
+        "source": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-main-63:\\layout\\fragment_feed.xml"
+    },
+    {
+        "merged": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-mergeDebugResources-60:\\layout\\fragment_map.xml",
+        "source": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-main-63:\\layout\\fragment_map.xml"
+    },
+    {
+        "merged": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-mergeDebugResources-60:\\layout\\fragment_login.xml",
+        "source": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-main-63:\\layout\\fragment_login.xml"
+    },
+    {
+        "merged": "com.travelmeet.app-mergeDebugResources-60:/layout/item_spot.xml",
+        "source": "com.travelmeet.app-main-63:/layout/item_spot.xml"
+    },
+    {
+        "merged": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-mergeDebugResources-60:\\layout\\fragment_register.xml",
+        "source": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-main-63:\\layout\\fragment_register.xml"
+    },
+    {
+        "merged": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-mergeDebugResources-60:\\layout\\fragment_my_spots.xml",
+        "source": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-main-63:\\layout\\fragment_my_spots.xml"
+    },
+    {
+        "merged": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-mergeDebugResources-60:\\layout\\fragment_spot_detail.xml",
+        "source": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-main-63:\\layout\\fragment_spot_detail.xml"
+    },
+    {
+        "merged": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-mergeDebugResources-60:\\layout\\item_image_preview.xml",
+        "source": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-main-63:\\layout\\item_image_preview.xml"
+    },
+    {
+        "merged": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-mergeDebugResources-60:\\layout\\dialog_edit_profile.xml",
+        "source": "C:\\Users\\barab\\.gradle\\daemon\\8.4\\com.travelmeet.app-main-63:\\layout\\dialog_edit_profile.xml"
+    }
+]
