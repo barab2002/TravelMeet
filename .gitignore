@@ -18,6 +18,5 @@ google-services.json
 /app/debug/
 *.hprof
 *.log
-gradle.properties
 secrets.properties
 .claude/
