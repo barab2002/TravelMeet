@@ -3,28 +3,36 @@ package com.travelmeet.app.data.remote.model
 import com.google.gson.annotations.SerializedName
 
 data class WeatherResponse(
-    @SerializedName("main") val main: MainWeather,
-    @SerializedName("weather") val weather: List<WeatherInfo>,
-    @SerializedName("wind") val wind: Wind,
-    @SerializedName("name") val cityName: String
+    @SerializedName("current") val current: CurrentWeather
 )
 
-data class MainWeather(
-    @SerializedName("temp") val temp: Double,
-    @SerializedName("humidity") val humidity: Int,
-    @SerializedName("feels_like") val feelsLike: Double,
-    @SerializedName("temp_min") val tempMin: Double,
-    @SerializedName("temp_max") val tempMax: Double
-)
+data class CurrentWeather(
+    @SerializedName("temperature_2m") val temperature: Double,
+    @SerializedName("relative_humidity_2m") val humidity: Int,
+    @SerializedName("weather_code") val weatherCode: Int,
+    @SerializedName("wind_speed_10m") val windSpeed: Double
+) {
+    val description: String
+        get() = weatherCodeToDescription(weatherCode)
 
-data class WeatherInfo(
-    @SerializedName("id") val id: Int,
-    @SerializedName("main") val main: String,
-    @SerializedName("description") val description: String,
-    @SerializedName("icon") val icon: String
-)
-
-data class Wind(
-    @SerializedName("speed") val speed: Double,
-    @SerializedName("deg") val deg: Int
-)
+    companion object {
+        fun weatherCodeToDescription(code: Int): String = when (code) {
+            0 -> "Clear sky"
+            1 -> "Mainly clear"
+            2 -> "Partly cloudy"
+            3 -> "Overcast"
+            45, 48 -> "Foggy"
+            51, 53, 55 -> "Drizzle"
+            56, 57 -> "Freezing drizzle"
+            61, 63, 65 -> "Rain"
+            66, 67 -> "Freezing rain"
+            71, 73, 75 -> "Snowfall"
+            77 -> "Snow grains"
+            80, 81, 82 -> "Rain showers"
+            85, 86 -> "Snow showers"
+            95 -> "Thunderstorm"
+            96, 99 -> "Thunderstorm with hail"
+            else -> "Unknown"
+        }
+    }
+}

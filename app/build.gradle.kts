@@ -1,3 +1,4 @@
+import java.util.Properties
 
 plugins {
     id("com.android.application")
@@ -20,8 +21,14 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
+        val localPropsFile = rootProject.file("local.properties")
+        val localProps = Properties().apply {
+            if (localPropsFile.exists()) load(localPropsFile.inputStream())
+        }
         manifestPlaceholders["MAPS_API_KEY"] =
-            project.findProperty("MAPS_API_KEY") as String? ?: "YOUR_API_KEY"
+            localProps.getProperty("MAPS_API_KEY")
+                ?: project.findProperty("MAPS_API_KEY") as String?
+                ?: "YOUR_API_KEY"
     }
 
     buildTypes {
@@ -33,6 +40,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     compileOptions {
