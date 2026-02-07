@@ -4,14 +4,16 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.travelmeet.app.data.local.entity.SpotEntity
 import com.travelmeet.app.data.local.entity.UserEntity
 
 @Database(
     entities = [SpotEntity::class, UserEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun spotDao(): SpotDao

@@ -99,6 +99,20 @@
         <action
             android:id="@+id/action_profileFragment_to_spotDetailFragment"
             app:destination="@id/spotDetailFragment" />
+        
+        <action
+            android:id="@+id/action_profileFragment_to_mySpotsFragment"
+            app:destination="@id/mySpotsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/mySpotsFragment"
+        android:name="com.travelmeet.app.ui.profile.MySpotsFragment"
+        android:label="My Spots"
+        tools:layout="@layout/fragment_my_spots">
+        <action
+            android:id="@+id/action_mySpotsFragment_to_spotDetailFragment"
+            app:destination="@id/spotDetailFragment" />
     </fragment>
 
 </navigation>

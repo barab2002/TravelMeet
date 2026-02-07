@@ -21,6 +21,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.auth.FirebaseAuth
 import com.travelmeet.app.R
 import com.travelmeet.app.data.local.entity.SpotEntity
 import com.travelmeet.app.databinding.FragmentMapBinding
@@ -34,6 +35,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private var googleMap: GoogleMap? = null
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val spotMarkerMap = mutableMapOf<String, SpotEntity>()
+    private val userId = FirebaseAuth.getInstance().currentUser?.uid
 
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -100,14 +102,18 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
                 spots.forEach { spot ->
                     val position = LatLng(spot.latitude, spot.longitude)
+                    val markerColor = if (spot.userId == userId) {
+                        BitmapDescriptorFactory.HUE_AZURE
+                    } else {
+                        BitmapDescriptorFactory.HUE_ROSE
+                    }
+
                     val marker = map.addMarker(
                         MarkerOptions()
                             .position(position)
                             .title(spot.title)
                             .snippet("by ${spot.username}")
-                            .icon(BitmapDescriptorFactory.defaultMarker(
-                                BitmapDescriptorFactory.HUE_AZURE
-                            ))
+                            .icon(BitmapDescriptorFactory.defaultMarker(markerColor))
                     )
                     marker?.tag = spot.id
                     spotMarkerMap[spot.id] = spot
