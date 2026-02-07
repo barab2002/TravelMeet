@@ -186,7 +186,10 @@ class SpotRepository(
         spotId: String,
         title: String,
         description: String,
-        newImageUri: Uri?
+        newImageUris: List<Uri>,
+        latitude: Double,
+        longitude: Double,
+        locationName: String?
     ): Resource<SpotEntity> {
         return try {
             val user = auth.currentUser ?: return Resource.Error("Not authenticated")
@@ -199,21 +202,27 @@ class SpotRepository(
 
             var imageUrls = existingSpot.imageUrls
 
-            if (newImageUri != null) {
-                val mimeType = context.contentResolver.getType(newImageUri)
-                val isGif = mimeType == "image/gif"
-                val extension = if (isGif) "gif" else "jpg"
-                val imageBytes = if (isGif) readRawBytes(newImageUri) else compressImage(newImageUri)
-                val imageRef = storage.reference
-                    .child("${Constants.STORAGE_SPOT_IMAGES}/$spotId/${UUID.randomUUID()}.$extension")
-                imageRef.putBytes(imageBytes).await()
-                imageUrls = imageUrls + imageRef.downloadUrl.await().toString()
+            if (newImageUris.isNotEmpty()) {
+                val newUrls = newImageUris.map { uri ->
+                    val mimeType = context.contentResolver.getType(uri)
+                    val isGif = mimeType == "image/gif"
+                    val extension = if (isGif) "gif" else "jpg"
+                    val imageBytes = if (isGif) readRawBytes(uri) else compressImage(uri)
+                    val imageRef = storage.reference
+                        .child("${Constants.STORAGE_SPOT_IMAGES}/$spotId/${UUID.randomUUID()}.$extension")
+                    imageRef.putBytes(imageBytes).await()
+                    imageRef.downloadUrl.await().toString()
+                }
+                imageUrls = imageUrls + newUrls
             }
 
             val updates = mapOf(
                 "title" to title,
                 "description" to description,
-                "imageUrls" to imageUrls
+                "imageUrls" to imageUrls,
+                "latitude" to latitude,
+                "longitude" to longitude,
+                "locationName" to locationName
             )
 
             firestore.collection(Constants.COLLECTION_SPOTS)
@@ -224,7 +233,10 @@ class SpotRepository(
             val updatedSpot = existingSpot.copy(
                 title = title,
                 description = description,
-                imageUrls = imageUrls
+                imageUrls = imageUrls,
+                latitude = latitude,
+                longitude = longitude,
+                locationName = locationName
             )
             spotDao.updateSpot(updatedSpot)
             Resource.Success(updatedSpot)

@@ -70,7 +70,7 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
 
         binding.btnEdit.setOnClickListener {
             val action = SpotDetailFragmentDirections
-                .actionSpotDetailFragmentToAddSpotFragment()
+                .actionSpotDetailFragmentToAddSpotFragment(args.spotId)
             findNavController().navigate(action)
         }
 

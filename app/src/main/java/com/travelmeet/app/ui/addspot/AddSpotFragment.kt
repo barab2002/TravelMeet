@@ -20,6 +20,7 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -42,7 +43,9 @@ class AddSpotFragment : Fragment() {
 
     private var _binding: FragmentAddSpotBinding? = null
     private val binding get() = _binding!!
+    private val args: AddSpotFragmentArgs by navArgs()
     private val spotViewModel: SpotViewModel by activityViewModels()
+    private var editingSpotId: String? = null
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var placesClient: PlacesClient
@@ -110,13 +113,22 @@ class AddSpotFragment : Fragment() {
         setupClickListeners()
         setupPlacesAutocomplete()
         observeAddSpotState()
+        observeUpdateSpotState()
 
-        // Auto-fetch location on open if permission already granted
-        if (ContextCompat.checkSelfPermission(
-                requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            fetchLocation()
+        // Check if we're in edit mode
+        val spotId = args.spotId
+        if (spotId.isNotEmpty()) {
+            editingSpotId = spotId
+            setupEditMode()
+            loadSpotForEditing(spotId)
+        } else {
+            // Auto-fetch location on open if permission already granted
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                fetchLocation()
+            }
         }
     }
 
@@ -289,7 +301,9 @@ class AddSpotFragment : Fragment() {
         val description = binding.etDescription.text.toString().trim()
         val manualLocation = binding.etLocationManual.text.toString().trim()
 
-        if (selectedImageUris.isEmpty()) {
+        val isEditing = editingSpotId != null
+
+        if (!isEditing && selectedImageUris.isEmpty()) {
             Toast.makeText(requireContext(), "Please select an image", Toast.LENGTH_SHORT).show()
             return
         }
@@ -303,7 +317,6 @@ class AddSpotFragment : Fragment() {
         }
 
         if (manualLocation.isNotEmpty() && !hasLocation) {
-            // User typed a location but didn't select from autocomplete — use Geocoder as fallback
             getCoordinatesFromLocationName(manualLocation)
             if (!hasLocation) {
                 return
@@ -316,14 +329,28 @@ class AddSpotFragment : Fragment() {
         binding.tilTitle.error = null
         binding.tilDescription.error = null
 
-        spotViewModel.addSpot(
-            title = title,
-            description = description,
-            imageUris = selectedImageUris,
-            latitude = currentLatitude,
-            longitude = currentLongitude,
-            locationName = if (manualLocation.isNotEmpty()) currentLocationName ?: manualLocation else currentLocationName
-        )
+        val locationName = if (manualLocation.isNotEmpty()) currentLocationName ?: manualLocation else currentLocationName
+
+        if (isEditing) {
+            spotViewModel.updateSpot(
+                spotId = editingSpotId!!,
+                title = title,
+                description = description,
+                newImageUris = selectedImageUris,
+                latitude = currentLatitude,
+                longitude = currentLongitude,
+                locationName = locationName
+            )
+        } else {
+            spotViewModel.addSpot(
+                title = title,
+                description = description,
+                imageUris = selectedImageUris,
+                latitude = currentLatitude,
+                longitude = currentLongitude,
+                locationName = locationName
+            )
+        }
     }
 
     private fun getCoordinatesFromLocationName(locationName: String) {
@@ -348,6 +375,35 @@ class AddSpotFragment : Fragment() {
         }
     }
 
+    private fun setupEditMode() {
+        binding.tvHeader.text = getString(R.string.edit_spot)
+        binding.btnSave.text = getString(R.string.update_spot)
+    }
+
+    private fun loadSpotForEditing(spotId: String) {
+        spotViewModel.getSpotById(spotId).observe(viewLifecycleOwner) { spot ->
+            spot?.let {
+                binding.etTitle.setText(it.title)
+                binding.etDescription.setText(it.description)
+
+                // Pre-fill location
+                currentLatitude = it.latitude
+                currentLongitude = it.longitude
+                hasLocation = true
+                currentLocationName = it.locationName
+
+                if (!it.locationName.isNullOrEmpty()) {
+                    placeSelected = true
+                    binding.etLocationManual.setText(it.locationName)
+                    binding.tvLocationLabel.text = it.locationName
+                }
+                binding.tvLocationCoords.text = String.format(
+                    "%.6f, %.6f", it.latitude, it.longitude
+                )
+            }
+        }
+    }
+
     private fun observeAddSpotState() {
         spotViewModel.addSpotState.observe(viewLifecycleOwner) { resource ->
             when (resource) {
@@ -361,6 +417,31 @@ class AddSpotFragment : Fragment() {
                     binding.progressBar.visibility = View.GONE
                     binding.btnSave.visibility = View.VISIBLE
                     Toast.makeText(requireContext(), "Spot added!", Toast.LENGTH_SHORT).show()
+                    findNavController().navigateUp()
+                }
+                is Resource.Error -> {
+                    binding.progressBar.cancelAnimation()
+                    binding.progressBar.visibility = View.GONE
+                    binding.btnSave.visibility = View.VISIBLE
+                    Toast.makeText(requireContext(), resource.message, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun observeUpdateSpotState() {
+        spotViewModel.updateSpotState.observe(viewLifecycleOwner) { resource ->
+            when (resource) {
+                is Resource.Loading -> {
+                    binding.progressBar.visibility = View.VISIBLE
+                    binding.progressBar.playAnimation()
+                    binding.btnSave.visibility = View.INVISIBLE
+                }
+                is Resource.Success -> {
+                    binding.progressBar.cancelAnimation()
+                    binding.progressBar.visibility = View.GONE
+                    binding.btnSave.visibility = View.VISIBLE
+                    Toast.makeText(requireContext(), "Spot updated!", Toast.LENGTH_SHORT).show()
                     findNavController().navigateUp()
                 }
                 is Resource.Error -> {
