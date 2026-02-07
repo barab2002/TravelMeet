@@ -45,6 +45,7 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
             application.applicationContext
         )
         allSpots = repository.getAllSpots()
+        repository.startRealtimeSync()
     }
 
     fun syncSpots() {
@@ -52,6 +53,11 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             _syncState.value = repository.syncSpots()
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        repository.stopRealtimeSync()
     }
 
     fun getSpotsByUser(userId: String): LiveData<List<SpotEntity>> =
@@ -63,7 +69,7 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
     fun addSpot(
         title: String,
         description: String,
-        imageUri: Uri,
+        imageUris: List<Uri>,
         latitude: Double,
         longitude: Double,
         locationName: String?
@@ -71,7 +77,7 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
         _addSpotState.value = Resource.Loading()
         viewModelScope.launch {
             _addSpotState.value = repository.addSpot(
-                title, description, imageUri, latitude, longitude, locationName
+                title, description, imageUris, latitude, longitude, locationName
             )
         }
     }

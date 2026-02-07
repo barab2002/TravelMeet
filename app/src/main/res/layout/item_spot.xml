@@ -107,10 +107,11 @@
                     android:textSize="12sp" />
 
                 <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
+                    android:id="@+id/iv_like"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_marginStart="@dimen/spacing_md"
-                    android:src="@drawable/ic_likes"
+                    android:src="@drawable/ic_like_outline"
                     app:tint="@color/error"
                     android:contentDescription="Likes" />
 
