@@ -19,6 +19,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -360,8 +361,14 @@ class AddSpotFragment : Fragment() {
                     binding.progressBar.cancelAnimation()
                     binding.progressBar.visibility = View.GONE
                     binding.btnSave.visibility = View.VISIBLE
-                    Toast.makeText(requireContext(), "Spot added!", Toast.LENGTH_SHORT).show()
-                    findNavController().navigateUp()
+                    Toast.makeText(requireContext(), "Spot added successfully!", Toast.LENGTH_SHORT).show()
+                    findNavController().navigate(
+                        R.id.feedFragment,
+                        null,
+                        NavOptions.Builder()
+                            .setPopUpTo(R.id.feedFragment, true)
+                            .build()
+                    )
                 }
                 is Resource.Error -> {
                     binding.progressBar.cancelAnimation()
