@@ -85,13 +85,16 @@ class FeedFragment : Fragment() {
                 is Resource.Loading -> {
                     if (!binding.swipeRefresh.isRefreshing) {
                         binding.progressBar.visibility = View.VISIBLE
+                        binding.progressBar.playAnimation()
                     }
                 }
                 is Resource.Success -> {
+                    binding.progressBar.cancelAnimation()
                     binding.progressBar.visibility = View.GONE
                     binding.swipeRefresh.isRefreshing = false
                 }
                 is Resource.Error -> {
+                    binding.progressBar.cancelAnimation()
                     binding.progressBar.visibility = View.GONE
                     binding.swipeRefresh.isRefreshing = false
                     Toast.makeText(
