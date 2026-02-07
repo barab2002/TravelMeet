@@ -127,11 +127,11 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/til_description">
 
-            <AutoCompleteTextView
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/et_location_manual"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"
+                android:inputType="textCapSentences"
                 android:completionThreshold="2"
                 android:textColor="@color/text_primary" />
         </com.google.android.material.textfield.TextInputLayout>
