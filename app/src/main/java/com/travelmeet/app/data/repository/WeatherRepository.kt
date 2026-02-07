@@ -2,7 +2,6 @@ package com.travelmeet.app.data.repository
 
 import com.travelmeet.app.data.remote.WeatherApiService
 import com.travelmeet.app.data.remote.model.WeatherResponse
-import com.travelmeet.app.util.Constants
 import com.travelmeet.app.util.Resource
 
 class WeatherRepository(
@@ -16,8 +15,7 @@ class WeatherRepository(
         return try {
             val response = weatherApiService.getCurrentWeather(
                 latitude = latitude,
-                longitude = longitude,
-                apiKey = Constants.WEATHER_API_KEY
+                longitude = longitude
             )
 
             if (response.isSuccessful) {

@@ -9,16 +9,16 @@ import retrofit2.http.Query
 
 interface WeatherApiService {
 
-    @GET("weather")
+    @GET("v1/forecast")
     suspend fun getCurrentWeather(
-        @Query("lat") latitude: Double,
-        @Query("lon") longitude: Double,
-        @Query("appid") apiKey: String,
-        @Query("units") units: String = "metric"
+        @Query("latitude") latitude: Double,
+        @Query("longitude") longitude: Double,
+        @Query("current") current: String = "temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m",
+        @Query("wind_speed_unit") windSpeedUnit: String = "ms"
     ): Response<WeatherResponse>
 
     companion object {
-        private const val BASE_URL = "https://api.openweathermap.org/data/2.5/"
+        private const val BASE_URL = "https://api.open-meteo.com/"
 
         fun create(): WeatherApiService {
             return Retrofit.Builder()

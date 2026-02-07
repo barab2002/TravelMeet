@@ -1,10 +1,6 @@
 package com.travelmeet.app.util
 
-import com.travelmeet.app.BuildConfig
-
 object Constants {
-    val WEATHER_API_KEY: String = BuildConfig.WEATHER_API_KEY
-
     // Firebase Storage paths
     const val STORAGE_PROFILE_IMAGES = "profile_images"
     const val STORAGE_SPOT_IMAGES = "spot_images"
