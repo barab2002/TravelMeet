@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="gcm_defaultSenderId" translatable="false">355700900438</string>
-    <string name="google_api_key" translatable="false">AIzaSyB-FcwA0MTh2h8H-WV2KjJ2O6H8BXBHldk</string>
-    <string name="google_app_id" translatable="false">1:355700900438:android:9f491c3813be7cb290b1f7</string>
-    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyB-FcwA0MTh2h8H-WV2KjJ2O6H8BXBHldk</string>
-    <string name="google_storage_bucket" translatable="false">travelmeet-9602b.firebasestorage.app</string>
-    <string name="project_id" translatable="false">travelmeet-9602b</string>
-</resources>
