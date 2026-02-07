@@ -25,6 +25,7 @@ import com.travelmeet.app.databinding.FragmentAddSpotBinding
 import com.travelmeet.app.ui.viewmodel.SpotViewModel
 import com.travelmeet.app.util.Resource
 import java.io.File
+import java.util.Locale
 import java.io.IOException
 
 class AddSpotFragment : Fragment() {
@@ -40,6 +41,7 @@ class AddSpotFragment : Fragment() {
     private var currentLatitude: Double = 0.0
     private var currentLongitude: Double = 0.0
     private var hasLocation: Boolean = false
+    private var currentLocationName: String? = null
 
     // Gallery picker
     private val galleryLauncher = registerForActivityResult(
@@ -93,6 +95,14 @@ class AddSpotFragment : Fragment() {
         setupRecyclerView()
         setupClickListeners()
         observeAddSpotState()
+
+        // Auto-fetch location on open if permission already granted
+        if (ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            fetchLocation()
+        }
     }
 
     private fun setupRecyclerView() {
@@ -158,9 +168,12 @@ class AddSpotFragment : Fragment() {
                     currentLatitude = location.latitude
                     currentLongitude = location.longitude
                     hasLocation = true
-                    binding.tvLocationCoords.text = String.format(
-                        "%.6f, %.6f", currentLatitude, currentLongitude
-                    )
+
+                    // Reverse geocode to get address
+                    val addressText = getAddressFromCoordinates(currentLatitude, currentLongitude)
+                    currentLocationName = addressText
+                    binding.tvLocationCoords.text = addressText
+                        ?: String.format("%.6f, %.6f", currentLatitude, currentLongitude)
                     binding.tvLocationLabel.text = getString(R.string.current_location)
                 } else {
                     Toast.makeText(
@@ -172,6 +185,25 @@ class AddSpotFragment : Fragment() {
             }
         } catch (e: SecurityException) {
             Toast.makeText(requireContext(), R.string.location_permission_rationale, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun getAddressFromCoordinates(latitude: Double, longitude: Double): String? {
+        return try {
+            val geocoder = Geocoder(requireContext(), Locale.getDefault())
+            @Suppress("DEPRECATION")
+            val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+            if (!addresses.isNullOrEmpty()) {
+                val address = addresses[0]
+                val parts = mutableListOf<String>()
+                address.thoroughfare?.let { parts.add(it) }
+                address.locality?.let { parts.add(it) }
+                address.adminArea?.let { parts.add(it) }
+                address.countryName?.let { parts.add(it) }
+                if (parts.isNotEmpty()) parts.joinToString(", ") else null
+            } else null
+        } catch (e: Exception) {
+            null
         }
     }
 
@@ -209,7 +241,7 @@ class AddSpotFragment : Fragment() {
             imageUris = selectedImageUris,
             latitude = currentLatitude,
             longitude = currentLongitude,
-            locationName = manualLocation.ifEmpty { null }
+            locationName = manualLocation.ifEmpty { currentLocationName }
         )
     }
 
