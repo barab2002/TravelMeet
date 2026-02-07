@@ -36,6 +36,20 @@
         <item name="android:textColorHint">@color/text_hint</item>
     </style>
 
+    <style name="TravelMeet.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/primary</item>
+        <item name="strokeColor">@color/primary</item>
+        <item name="iconTint">@color/primary</item>
+    </style>
+
+    <style name="TravelMeet.Button.Text" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/primary</item>
+    </style>
+
     <style name="TravelMeet.Card" parent="Widget.MaterialComponents.CardView">
         <item name="cardBackgroundColor">@color/card_background</item>
         <item name="cardCornerRadius">22dp</item>

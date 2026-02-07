@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.travelmeet.app-mergeDebugResources-59:/values-w600dp-land-v13/values-w600dp-land-v13.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\barab\\.gradle\\caches\\transforms-3\\b4e26e4bcd5cfe2278b2c19dcd050c5e\\transformed\\material-1.8.0\\res\\values-w600dp-land-v13\\values-w600dp-land-v13.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "54",
+                        "endOffsets": "105"
+                    }
+                }
+            ]
+        }
+    ]
+}

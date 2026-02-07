@@ -21,8 +21,10 @@
 
     <!-- Add Spot -->
     <string name="add_spot">Add Spot</string>
+    <string name="edit_spot">Edit Spot</string>
     <string name="title">Title</string>
     <string name="description">Description</string>
+    <string name="location_manual">Or enter location manually</string>
     <string name="gallery">Gallery</string>
     <string name="camera">Camera</string>
     <string name="save_spot">SAVE SPOT</string>
