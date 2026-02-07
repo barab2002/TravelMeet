@@ -98,9 +98,13 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
-    // Picasso (image loading)
+    // Image loading
     implementation("com.squareup.picasso:picasso:2.8")
-    
+    implementation("com.github.bumptech.glide:glide:4.15.1")
+
+    // ViewPager2
+    implementation("androidx.viewpager2:viewpager2:1.0.0")
+
     // Lottie
     implementation("com.airbnb.android:lottie:5.2.0")
 

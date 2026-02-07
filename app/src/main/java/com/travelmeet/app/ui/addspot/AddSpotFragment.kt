@@ -56,12 +56,12 @@ class AddSpotFragment : Fragment() {
     private var placeSelected: Boolean = false
     private val predictions = mutableListOf<AutocompletePrediction>()
 
-    // Gallery picker
+    // Gallery picker (multi-select)
     private val galleryLauncher = registerForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { uri ->
-        uri?.let {
-            selectedImageUris.add(it)
+        ActivityResultContracts.GetMultipleContents()
+    ) { uris ->
+        if (uris.isNotEmpty()) {
+            selectedImageUris.addAll(uris)
             imageAdapter.notifyDataSetChanged()
         }
     }

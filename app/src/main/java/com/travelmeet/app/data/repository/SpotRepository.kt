@@ -127,9 +127,12 @@ class SpotRepository(
             val spotId = UUID.randomUUID().toString()
 
             val imageUrls = imageUris.map { uri ->
-                val imageBytes = compressImage(uri)
+                val mimeType = context.contentResolver.getType(uri)
+                val isGif = mimeType == "image/gif"
+                val extension = if (isGif) "gif" else "jpg"
+                val imageBytes = if (isGif) readRawBytes(uri) else compressImage(uri)
                 val imageRef = storage.reference
-                    .child("${Constants.STORAGE_SPOT_IMAGES}/$spotId/${UUID.randomUUID()}.jpg")
+                    .child("${Constants.STORAGE_SPOT_IMAGES}/$spotId/${UUID.randomUUID()}.$extension")
                 imageRef.putBytes(imageBytes).await()
                 imageRef.downloadUrl.await().toString()
             }
@@ -197,9 +200,12 @@ class SpotRepository(
             var imageUrls = existingSpot.imageUrls
 
             if (newImageUri != null) {
-                val imageBytes = compressImage(newImageUri)
+                val mimeType = context.contentResolver.getType(newImageUri)
+                val isGif = mimeType == "image/gif"
+                val extension = if (isGif) "gif" else "jpg"
+                val imageBytes = if (isGif) readRawBytes(newImageUri) else compressImage(newImageUri)
                 val imageRef = storage.reference
-                    .child("${Constants.STORAGE_SPOT_IMAGES}/$spotId/${UUID.randomUUID()}.jpg")
+                    .child("${Constants.STORAGE_SPOT_IMAGES}/$spotId/${UUID.randomUUID()}.$extension")
                 imageRef.putBytes(imageBytes).await()
                 imageUrls = imageUrls + imageRef.downloadUrl.await().toString()
             }
@@ -311,5 +317,10 @@ class SpotRepository(
 
         bitmap.recycle()
         return outputStream.toByteArray()
+    }
+
+    private fun readRawBytes(uri: Uri): ByteArray {
+        return context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+            ?: ByteArray(0)
     }
 }
