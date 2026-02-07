@@ -52,6 +52,7 @@
     <string name="edit_profile">Edit Profile</string>
     <string name="my_spots">My Spots (%d)</string>
     <string name="settings">Settings</string>
+    <string name="dark_mode">Dark Mode</string>
     <string name="logout">Logout</string>
     <string name="confirm_logout_title">Logout</string>
     <string name="confirm_logout_message">Are you sure you want to logout?</string>

@@ -82,6 +82,10 @@ class ProfileFragment : Fragment() {
             findNavController().navigate(R.id.action_profileFragment_to_mySpotsFragment)
         }
 
+        binding.cardSettings.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_settingsFragment)
+        }
+
         binding.btnLogout.setOnClickListener {
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.confirm_logout_title)
