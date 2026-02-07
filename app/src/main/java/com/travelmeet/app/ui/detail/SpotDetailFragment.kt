@@ -154,14 +154,14 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
                 is Resource.Success -> {
                     binding.weatherProgress.visibility = View.GONE
                     resource.data?.let { weather ->
-                        binding.tvTemperature.text = "${weather.main.temp.toInt()}°C"
-                        binding.tvWeatherTemp.text = "${weather.main.temp.toInt()}°C"
-                        binding.tvWeatherDesc.text = weather.weather.firstOrNull()
-                            ?.description?.replaceFirstChar { it.uppercase() } ?: ""
+                        val current = weather.current
+                        binding.tvTemperature.text = "${current.temperature.toInt()}°C"
+                        binding.tvWeatherTemp.text = "${current.temperature.toInt()}°C"
+                        binding.tvWeatherDesc.text = current.description
                         binding.tvWeatherHumidity.text =
-                            getString(R.string.humidity, weather.main.humidity)
+                            getString(R.string.humidity, current.humidity)
                         binding.tvWeatherWind.text =
-                            getString(R.string.wind_speed, weather.wind.speed)
+                            getString(R.string.wind_speed, current.windSpeed)
                     }
                 }
                 is Resource.Error -> {
