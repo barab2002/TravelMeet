@@ -42,10 +42,15 @@ class FeedFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        spotAdapter = SpotAdapter { spot ->
-            val action = FeedFragmentDirections.actionFeedFragmentToSpotDetailFragment(spot.id)
-            findNavController().navigate(action)
-        }
+        spotAdapter = SpotAdapter(
+            onItemClick = { spot ->
+                val action = FeedFragmentDirections.actionFeedFragmentToSpotDetailFragment(spot.id)
+                findNavController().navigate(action)
+            },
+            onLikeClick = { spot ->
+                spotViewModel.toggleLike(spot.id)
+            }
+        )
         binding.rvSpots.apply {
             adapter = spotAdapter
             layoutManager = LinearLayoutManager(requireContext())

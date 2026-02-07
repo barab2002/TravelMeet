@@ -7,8 +7,12 @@ import android.net.Uri
 import androidx.lifecycle.LiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import com.travelmeet.app.data.local.SpotDao
 import com.travelmeet.app.data.local.entity.SpotEntity
 import com.travelmeet.app.util.Constants
@@ -25,7 +29,48 @@ class SpotRepository(
     private val context: Context
 ) {
 
+    private var snapshotListener: ListenerRegistration? = null
+    private val scope = CoroutineScope(Dispatchers.IO)
+
     fun getAllSpots(): LiveData<List<SpotEntity>> = spotDao.getAllSpots()
+
+    fun startRealtimeSync() {
+        snapshotListener?.remove()
+        snapshotListener = firestore.collection(Constants.COLLECTION_SPOTS)
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null) return@addSnapshotListener
+                val currentUserId = auth.currentUser?.uid ?: ""
+                val spots = snapshot.documents.mapNotNull { doc ->
+                    val likedBy = doc.get("likedBy") as? List<*> ?: emptyList<String>()
+                    val imageUrls = doc.get("imageUrls") as? List<String> ?: doc.getString("imageUrl")?.let { listOf(it) } ?: emptyList()
+                    SpotEntity(
+                        id = doc.getString("id") ?: doc.id,
+                        userId = doc.getString("userId") ?: "",
+                        username = doc.getString("username") ?: "",
+                        userPhotoUrl = doc.getString("userPhotoUrl"),
+                        title = doc.getString("title") ?: "",
+                        imageUrls = imageUrls,
+                        description = doc.getString("description") ?: "",
+                        latitude = doc.getDouble("latitude") ?: 0.0,
+                        longitude = doc.getDouble("longitude") ?: 0.0,
+                        locationName = doc.getString("locationName"),
+                        timestamp = doc.getLong("timestamp") ?: 0L,
+                        likesCount = doc.getLong("likesCount")?.toInt() ?: 0,
+                        isLikedByCurrentUser = likedBy.contains(currentUserId)
+                    )
+                }
+                scope.launch {
+                    spotDao.deleteAll()
+                    spotDao.insertSpots(spots)
+                }
+            }
+    }
+
+    fun stopRealtimeSync() {
+        snapshotListener?.remove()
+        snapshotListener = null
+    }
 
     fun getSpotsByUser(userId: String): LiveData<List<SpotEntity>> =
         spotDao.getSpotsByUser(userId)
@@ -43,14 +88,14 @@ class SpotRepository(
 
             val spots = snapshot.documents.mapNotNull { doc ->
                 val likedBy = doc.get("likedBy") as? List<*> ?: emptyList<String>()
+                val imageUrls = doc.get("imageUrls") as? List<String> ?: doc.getString("imageUrl")?.let { listOf(it) } ?: emptyList()
                 SpotEntity(
                     id = doc.getString("id") ?: doc.id,
                     userId = doc.getString("userId") ?: "",
                     username = doc.getString("username") ?: "",
                     userPhotoUrl = doc.getString("userPhotoUrl"),
                     title = doc.getString("title") ?: "",
-                    imageUrl = doc.getString("imageUrl") ?: "",
-                    localImagePath = null,
+                    imageUrls = imageUrls,
                     description = doc.getString("description") ?: "",
                     latitude = doc.getDouble("latitude") ?: 0.0,
                     longitude = doc.getDouble("longitude") ?: 0.0,
@@ -72,7 +117,7 @@ class SpotRepository(
     suspend fun addSpot(
         title: String,
         description: String,
-        imageUri: Uri,
+        imageUris: List<Uri>,
         latitude: Double,
         longitude: Double,
         locationName: String?
@@ -81,12 +126,13 @@ class SpotRepository(
             val user = auth.currentUser ?: return Resource.Error("Not authenticated")
             val spotId = UUID.randomUUID().toString()
 
-            // Compress and upload image
-            val imageBytes = compressImage(imageUri)
-            val imageRef = storage.reference
-                .child("${Constants.STORAGE_SPOT_IMAGES}/$spotId.jpg")
-            imageRef.putBytes(imageBytes).await()
-            val imageUrl = imageRef.downloadUrl.await().toString()
+            val imageUrls = imageUris.map { uri ->
+                val imageBytes = compressImage(uri)
+                val imageRef = storage.reference
+                    .child("${Constants.STORAGE_SPOT_IMAGES}/$spotId/${UUID.randomUUID()}.jpg")
+                imageRef.putBytes(imageBytes).await()
+                imageRef.downloadUrl.await().toString()
+            }
 
             val timestamp = System.currentTimeMillis()
             val spotData = hashMapOf(
@@ -95,7 +141,7 @@ class SpotRepository(
                 "username" to (user.displayName ?: "Unknown"),
                 "userPhotoUrl" to user.photoUrl?.toString(),
                 "title" to title,
-                "imageUrl" to imageUrl,
+                "imageUrls" to imageUrls,
                 "description" to description,
                 "latitude" to latitude,
                 "longitude" to longitude,
@@ -116,8 +162,7 @@ class SpotRepository(
                 username = user.displayName ?: "Unknown",
                 userPhotoUrl = user.photoUrl?.toString(),
                 title = title,
-                imageUrl = imageUrl,
-                localImagePath = null,
+                imageUrls = imageUrls,
                 description = description,
                 latitude = latitude,
                 longitude = longitude,
@@ -149,20 +194,20 @@ class SpotRepository(
                 return Resource.Error("You can only edit your own spots")
             }
 
-            var imageUrl = existingSpot.imageUrl
+            var imageUrls = existingSpot.imageUrls
 
             if (newImageUri != null) {
                 val imageBytes = compressImage(newImageUri)
                 val imageRef = storage.reference
-                    .child("${Constants.STORAGE_SPOT_IMAGES}/$spotId.jpg")
+                    .child("${Constants.STORAGE_SPOT_IMAGES}/$spotId/${UUID.randomUUID()}.jpg")
                 imageRef.putBytes(imageBytes).await()
-                imageUrl = imageRef.downloadUrl.await().toString()
+                imageUrls = imageUrls + imageRef.downloadUrl.await().toString()
             }
 
             val updates = mapOf(
                 "title" to title,
                 "description" to description,
-                "imageUrl" to imageUrl
+                "imageUrls" to imageUrls
             )
 
             firestore.collection(Constants.COLLECTION_SPOTS)
@@ -173,7 +218,7 @@ class SpotRepository(
             val updatedSpot = existingSpot.copy(
                 title = title,
                 description = description,
-                imageUrl = imageUrl
+                imageUrls = imageUrls
             )
             spotDao.updateSpot(updatedSpot)
             Resource.Success(updatedSpot)
@@ -192,14 +237,13 @@ class SpotRepository(
                 return Resource.Error("You can only delete your own spots")
             }
 
-            // Delete image from storage
-            try {
-                storage.reference
-                    .child("${Constants.STORAGE_SPOT_IMAGES}/$spotId.jpg")
-                    .delete()
-                    .await()
-            } catch (_: Exception) {
-                // Image may not exist, continue
+            // Delete images from storage
+            spot.imageUrls.forEach { url ->
+                try {
+                    storage.getReferenceFromUrl(url).delete().await()
+                } catch (_: Exception) {
+                    // Image may not exist, continue
+                }
             }
 
             firestore.collection(Constants.COLLECTION_SPOTS)
