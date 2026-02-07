@@ -272,15 +272,18 @@ class AddSpotFragment : Fragment() {
             when (resource) {
                 is Resource.Loading -> {
                     binding.progressBar.visibility = View.VISIBLE
+                    binding.progressBar.playAnimation()
                     binding.btnSave.visibility = View.INVISIBLE
                 }
                 is Resource.Success -> {
+                    binding.progressBar.cancelAnimation()
                     binding.progressBar.visibility = View.GONE
                     binding.btnSave.visibility = View.VISIBLE
                     Toast.makeText(requireContext(), "Spot added!", Toast.LENGTH_SHORT).show()
                     findNavController().navigateUp()
                 }
                 is Resource.Error -> {
+                    binding.progressBar.cancelAnimation()
                     binding.progressBar.visibility = View.GONE
                     binding.btnSave.visibility = View.VISIBLE
                     Toast.makeText(requireContext(), resource.message, Toast.LENGTH_LONG).show()

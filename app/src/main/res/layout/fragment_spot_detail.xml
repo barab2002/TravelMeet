@@ -260,13 +260,15 @@
                             </LinearLayout>
                         </LinearLayout>
 
-                        <ProgressBar
+                        <com.airbnb.lottie.LottieAnimationView
                             android:id="@+id/weather_progress"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
                             android:layout_gravity="center"
                             android:visibility="gone"
-                            android:indeterminateTint="@color/primary" />
+                            app:lottie_rawRes="@raw/loading_animation"
+                            app:lottie_autoPlay="true"
+                            app:lottie_loop="true" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
