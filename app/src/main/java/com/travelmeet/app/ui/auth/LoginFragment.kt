@@ -8,7 +8,6 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.auth.FirebaseAuth
 import com.travelmeet.app.R
 import com.travelmeet.app.databinding.FragmentLoginBinding
 import com.travelmeet.app.ui.viewmodel.AuthViewModel
@@ -33,7 +32,7 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Auto-login check
-        if (FirebaseAuth.getInstance().currentUser != null) {
+        if (authViewModel.currentUser != null) {
             findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
             return
         }

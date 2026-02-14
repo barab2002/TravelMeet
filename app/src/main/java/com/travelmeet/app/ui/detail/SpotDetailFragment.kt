@@ -20,12 +20,12 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
 import com.travelmeet.app.R
 import com.travelmeet.app.data.local.entity.SpotEntity
 import com.travelmeet.app.databinding.FragmentSpotDetailBinding
 import com.travelmeet.app.ui.feed.ImageSliderAdapter
+import com.travelmeet.app.ui.viewmodel.AuthViewModel
 import com.travelmeet.app.ui.viewmodel.SpotViewModel
 import com.travelmeet.app.ui.viewmodel.WeatherViewModel
 import com.travelmeet.app.util.Resource
@@ -36,6 +36,7 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
     private var _binding: FragmentSpotDetailBinding? = null
     private val binding get() = _binding!!
     private val args: SpotDetailFragmentArgs by navArgs()
+    private val authViewModel: AuthViewModel by activityViewModels()
     private val spotViewModel: SpotViewModel by activityViewModels()
     private val weatherViewModel: WeatherViewModel by viewModels()
     private var googleMap: GoogleMap? = null
@@ -148,7 +149,7 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
         }
 
         // Show owner actions
-        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+        val currentUserId = authViewModel.currentUserId
         binding.ownerActions.visibility =
             if (spot.userId == currentUserId) View.VISIBLE else View.GONE
 

@@ -30,6 +30,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     val userData: LiveData<Resource<UserEntity>> = _userData
 
     val currentUser: FirebaseUser? get() = repository.currentUser
+    val currentUserId: String? get() = repository.currentUser?.uid
 
     init {
         val db = AppDatabase.getInstance(application)
