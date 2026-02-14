@@ -7,7 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.travelmeet.app.data.local.AppDatabase
 import com.travelmeet.app.data.local.entity.SpotEntity
@@ -37,10 +37,11 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         val db = AppDatabase.getInstance(application)
+        val rtdb = FirebaseDatabase.getInstance("https://travelmeet-9602b-default-rtdb.firebaseio.com/")
         repository = SpotRepository(
             db.spotDao(),
             FirebaseAuth.getInstance(),
-            FirebaseFirestore.getInstance(),
+            rtdb,
             FirebaseStorage.getInstance(),
             application.applicationContext
         )
@@ -51,7 +52,11 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
     fun syncSpots() {
         _syncState.value = Resource.Loading()
         viewModelScope.launch {
-            _syncState.value = repository.syncSpots()
+            try {
+                _syncState.postValue(repository.syncSpots())
+            } catch (e: Exception) {
+                _syncState.postValue(Resource.Error(e.message ?: "Sync failed"))
+            }
         }
     }
 
@@ -76,9 +81,14 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
     ) {
         _addSpotState.value = Resource.Loading()
         viewModelScope.launch {
-            _addSpotState.value = repository.addSpot(
-                title, description, imageUris, latitude, longitude, locationName
-            )
+            try {
+                val result = repository.addSpot(
+                    title, description, imageUris, latitude, longitude, locationName
+                )
+                _addSpotState.postValue(result)
+            } catch (e: Exception) {
+                _addSpotState.postValue(Resource.Error(e.message ?: "Failed to add spot"))
+            }
         }
     }
 
@@ -93,22 +103,35 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
     ) {
         _updateSpotState.value = Resource.Loading()
         viewModelScope.launch {
-            _updateSpotState.value = repository.updateSpot(
-                spotId, title, description, newImageUris, latitude, longitude, locationName
-            )
+            try {
+                val result = repository.updateSpot(
+                    spotId, title, description, newImageUris, latitude, longitude, locationName
+                )
+                _updateSpotState.postValue(result)
+            } catch (e: Exception) {
+                _updateSpotState.postValue(Resource.Error(e.message ?: "Failed to update spot"))
+            }
         }
     }
 
     fun deleteSpot(spotId: String) {
         _deleteSpotState.value = Resource.Loading()
         viewModelScope.launch {
-            _deleteSpotState.value = repository.deleteSpot(spotId)
+            try {
+                _deleteSpotState.postValue(repository.deleteSpot(spotId))
+            } catch (e: Exception) {
+                _deleteSpotState.postValue(Resource.Error(e.message ?: "Failed to delete spot"))
+            }
         }
     }
 
     fun toggleLike(spotId: String) {
         viewModelScope.launch {
-            _likeState.value = repository.toggleLike(spotId)
+            try {
+                _likeState.postValue(repository.toggleLike(spotId))
+            } catch (e: Exception) {
+                _likeState.postValue(Resource.Error(e.message ?: "Failed to toggle like"))
+            }
         }
     }
 }

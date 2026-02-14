@@ -86,7 +86,7 @@ dependencies {
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:31.5.0"))
     implementation("com.google.firebase:firebase-auth-ktx")
-    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-database-ktx")
     implementation("com.google.firebase:firebase-storage-ktx")
 
     // Google Maps, Location & Places

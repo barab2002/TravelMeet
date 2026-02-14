@@ -405,18 +405,29 @@ class AddSpotFragment : Fragment() {
         }
     }
 
+    private fun showLoading(message: String? = null) {
+        binding.loadingOverlay.visibility = View.VISIBLE
+        binding.progressBar.playAnimation()
+        if (message != null) {
+            binding.tvLoadingMessage.text = message
+        }
+        binding.btnSave.isEnabled = false
+    }
+
+    private fun hideLoading() {
+        binding.progressBar.cancelAnimation()
+        binding.loadingOverlay.visibility = View.GONE
+        binding.btnSave.isEnabled = true
+    }
+
     private fun observeAddSpotState() {
         spotViewModel.addSpotState.observe(viewLifecycleOwner) { resource ->
             when (resource) {
                 is Resource.Loading -> {
-                    binding.progressBar.visibility = View.VISIBLE
-                    binding.progressBar.playAnimation()
-                    binding.btnSave.visibility = View.INVISIBLE
+                    showLoading(getString(R.string.uploading))
                 }
                 is Resource.Success -> {
-                    binding.progressBar.cancelAnimation()
-                    binding.progressBar.visibility = View.GONE
-                    binding.btnSave.visibility = View.VISIBLE
+                    hideLoading()
                     Toast.makeText(requireContext(), "Spot added successfully!", Toast.LENGTH_SHORT).show()
                     findNavController().navigate(
                         R.id.feedFragment,
@@ -427,9 +438,7 @@ class AddSpotFragment : Fragment() {
                     )
                 }
                 is Resource.Error -> {
-                    binding.progressBar.cancelAnimation()
-                    binding.progressBar.visibility = View.GONE
-                    binding.btnSave.visibility = View.VISIBLE
+                    hideLoading()
                     Toast.makeText(requireContext(), resource.message, Toast.LENGTH_LONG).show()
                 }
             }
@@ -440,21 +449,15 @@ class AddSpotFragment : Fragment() {
         spotViewModel.updateSpotState.observe(viewLifecycleOwner) { resource ->
             when (resource) {
                 is Resource.Loading -> {
-                    binding.progressBar.visibility = View.VISIBLE
-                    binding.progressBar.playAnimation()
-                    binding.btnSave.visibility = View.INVISIBLE
+                    showLoading(getString(R.string.uploading))
                 }
                 is Resource.Success -> {
-                    binding.progressBar.cancelAnimation()
-                    binding.progressBar.visibility = View.GONE
-                    binding.btnSave.visibility = View.VISIBLE
+                    hideLoading()
                     Toast.makeText(requireContext(), "Spot updated!", Toast.LENGTH_SHORT).show()
                     findNavController().navigateUp()
                 }
                 is Resource.Error -> {
-                    binding.progressBar.cancelAnimation()
-                    binding.progressBar.visibility = View.GONE
-                    binding.btnSave.visibility = View.VISIBLE
+                    hideLoading()
                     Toast.makeText(requireContext(), resource.message, Toast.LENGTH_LONG).show()
                 }
             }
