@@ -56,6 +56,8 @@ class MySpotsFragment : Fragment() {
         val userId = authViewModel.currentUserId
         if (userId != null) {
             spotViewModel.getSpotsByUser(userId).observe(viewLifecycleOwner) { spots ->
+                binding.mySpotsProgressBar.cancelAnimation()
+                binding.mySpotsProgressBar.visibility = View.GONE
                 spotAdapter.submitList(spots)
                 binding.emptyState.visibility = if (spots.isEmpty()) View.VISIBLE else View.GONE
                 binding.rvMySpots.visibility = if (spots.isEmpty()) View.GONE else View.VISIBLE

@@ -199,12 +199,19 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
     private fun observeDeleteState() {
         spotViewModel.deleteSpotState.observe(viewLifecycleOwner) { resource ->
             when (resource) {
-                is Resource.Loading -> { /* show loading if desired */ }
+                is Resource.Loading -> {
+                    binding.deleteLoadingOverlay.visibility = View.VISIBLE
+                    binding.deleteProgressBar.playAnimation()
+                }
                 is Resource.Success -> {
+                    binding.deleteProgressBar.cancelAnimation()
+                    binding.deleteLoadingOverlay.visibility = View.GONE
                     Toast.makeText(requireContext(), "Spot deleted", Toast.LENGTH_SHORT).show()
                     findNavController().navigateUp()
                 }
                 is Resource.Error -> {
+                    binding.deleteProgressBar.cancelAnimation()
+                    binding.deleteLoadingOverlay.visibility = View.GONE
                     Toast.makeText(requireContext(), resource.message, Toast.LENGTH_LONG).show()
                 }
             }
