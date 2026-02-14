@@ -6,10 +6,12 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
+import com.squareup.picasso.Picasso
 import com.travelmeet.app.data.local.AppDatabase
 import com.travelmeet.app.data.local.entity.UserEntity
 import com.travelmeet.app.data.repository.AuthRepository
@@ -64,7 +66,27 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     fun updateProfile(username: String?, photoUri: Uri?) {
         _profileUpdateState.value = Resource.Loading()
         viewModelScope.launch {
-            _profileUpdateState.value = repository.updateProfile(username, photoUri)
+            val result = repository.updateProfile(username, photoUri)
+
+            // Clear image caches after successful update
+            if (result is Resource.Success && photoUri != null) {
+                // Clear Picasso cache
+                Picasso.get().invalidate(result.data?.photoUrl)
+
+                // Clear Glide cache
+                try {
+                    val context = getApplication<Application>().applicationContext
+                    Glide.get(context).clearMemory()
+                    // Note: clearDiskCache must run on background thread
+                    Thread {
+                        Glide.get(context).clearDiskCache()
+                    }.start()
+                } catch (e: Exception) {
+                    // Silently fail - cache clearing is not critical
+                }
+            }
+
+            _profileUpdateState.postValue(result)
         }
     }
 
