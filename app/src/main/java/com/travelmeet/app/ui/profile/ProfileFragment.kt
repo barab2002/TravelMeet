@@ -13,7 +13,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
 import com.travelmeet.app.R
 import com.travelmeet.app.databinding.DialogEditProfileBinding
@@ -100,7 +99,7 @@ class ProfileFragment : Fragment() {
     }
 
     private fun loadUserProfile() {
-        val user = FirebaseAuth.getInstance().currentUser
+        val user = authViewModel.currentUser
         user?.let {
             binding.tvUsername.text = it.displayName ?: "User"
             binding.tvEmail.text = it.email ?: ""
@@ -127,7 +126,7 @@ class ProfileFragment : Fragment() {
     }
 
     private fun observeUserSpots() {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val userId = authViewModel.currentUserId ?: return
         spotViewModel.getSpotsByUser(userId).observe(viewLifecycleOwner) { spots ->
             mySpotsAdapter.submitList(spots)
             binding.tvMySpots.text = getString(R.string.my_spots, spots.size)
@@ -136,7 +135,7 @@ class ProfileFragment : Fragment() {
 
     private fun showEditProfileDialog() {
         val dialogBinding = DialogEditProfileBinding.inflate(layoutInflater)
-        val currentUser = FirebaseAuth.getInstance().currentUser
+        val currentUser = authViewModel.currentUser
 
         dialogBinding.etUsername.setText(currentUser?.displayName ?: "")
         if (currentUser?.photoUrl != null) {

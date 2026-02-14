@@ -8,18 +8,18 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.firebase.auth.FirebaseAuth
 import com.travelmeet.app.databinding.FragmentMySpotsBinding
 import com.travelmeet.app.ui.feed.SpotAdapter
+import com.travelmeet.app.ui.viewmodel.AuthViewModel
 import com.travelmeet.app.ui.viewmodel.SpotViewModel
 
 class MySpotsFragment : Fragment() {
 
     private var _binding: FragmentMySpotsBinding? = null
     private val binding get() = _binding!!
+    private val authViewModel: AuthViewModel by activityViewModels()
     private val spotViewModel: SpotViewModel by activityViewModels()
     private lateinit var spotAdapter: SpotAdapter
-    private val userId = FirebaseAuth.getInstance().currentUser?.uid
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,6 +53,7 @@ class MySpotsFragment : Fragment() {
     }
 
     private fun observeMySpots() {
+        val userId = authViewModel.currentUserId
         if (userId != null) {
             spotViewModel.getSpotsByUser(userId).observe(viewLifecycleOwner) { spots ->
                 spotAdapter.submitList(spots)
