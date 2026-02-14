@@ -1,6 +1,7 @@
 package com.travelmeet.app.data.repository
 
 import android.net.Uri
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
@@ -93,8 +94,14 @@ class AuthRepository(
             if (photoUri != null) {
                 val ref = storage.reference
                     .child("${Constants.STORAGE_PROFILE_IMAGES}/${user.uid}.jpg")
+                // Add cache-busting parameter to force new URL on every upload
                 ref.putFile(photoUri).await()
                 photoUrl = ref.downloadUrl.await().toString()
+                    .let { url ->
+                        // Add timestamp parameter to bypass Picasso/Glide cache
+                        if (url.contains("?")) "$url&t=${System.currentTimeMillis()}"
+                        else "$url?t=${System.currentTimeMillis()}"
+                    }
             }
 
             // Update Firebase Auth profile
@@ -107,7 +114,11 @@ class AuthRepository(
             // Update Realtime Database
             val updates = hashMapOf<String, Any?>()
             if (username != null) updates["username"] = username
-            if (photoUrl != null) updates["photoUrl"] = photoUrl
+            if (photoUrl != null) {
+                updates["photoUrl"] = photoUrl
+                // Also update all user's spots with new profile photo
+                updateUserSpotsPhotoUrl(user.uid, photoUrl)
+            }
 
             if (updates.isNotEmpty()) {
                 usersRef.child(user.uid).updateChildren(updates).await()
@@ -127,6 +138,25 @@ class AuthRepository(
             Resource.Success(user)
         } catch (e: Exception) {
             Resource.Error(e.message ?: "Profile update failed")
+        }
+    }
+
+    private suspend fun updateUserSpotsPhotoUrl(userId: String, newPhotoUrl: String) {
+        try {
+            // Update all spots created by this user with new photo URL
+            val spotsRef = database.getReference(Constants.COLLECTION_SPOTS)
+            val snapshot = spotsRef.get().await()
+
+            snapshot.children.forEach { spotSnapshot ->
+                val spotUserId = spotSnapshot.child("userId").getValue(String::class.java)
+                if (spotUserId == userId) {
+                    spotSnapshot.key?.let { spotId ->
+                        spotsRef.child(spotId).child("userPhotoUrl").setValue(newPhotoUrl).await()
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "Failed to update spots photo URL: ${e.message}")
         }
     }
 

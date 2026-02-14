@@ -19,6 +19,7 @@ import kotlinx.coroutines.withContext
 import com.travelmeet.app.data.local.SpotDao
 import com.travelmeet.app.data.local.entity.SpotEntity
 import com.travelmeet.app.util.Constants
+import com.travelmeet.app.util.ImageCompressionUtils
 import com.travelmeet.app.util.Resource
 import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
@@ -134,7 +135,7 @@ class SpotRepository(
                     val mimeType = context.contentResolver.getType(uri)
                     val isGif = mimeType == "image/gif"
                     val extension = if (isGif) "gif" else "jpg"
-                    val imageBytes = if (isGif) readRawBytes(uri) else compressImage(uri)
+                    val imageBytes = if (isGif) readRawBytes(uri) else ImageCompressionUtils.compressImage(context, uri)
                     val imageRef = storage.reference
                         .child("${Constants.STORAGE_SPOT_IMAGES}/$spotId/${UUID.randomUUID()}.$extension")
                     imageRef.putBytes(imageBytes).await()
@@ -222,7 +223,7 @@ class SpotRepository(
                         val mimeType = context.contentResolver.getType(uri)
                         val isGif = mimeType == "image/gif"
                         val extension = if (isGif) "gif" else "jpg"
-                        val imageBytes = if (isGif) readRawBytes(uri) else compressImage(uri)
+                        val imageBytes = if (isGif) readRawBytes(uri) else ImageCompressionUtils.compressImage(context, uri)
                         val imageRef = storage.reference
                             .child("${Constants.STORAGE_SPOT_IMAGES}/$spotId/${UUID.randomUUID()}.$extension")
                         imageRef.putBytes(imageBytes).await()
@@ -338,29 +339,6 @@ class SpotRepository(
         }
     }
 
-    private fun compressImage(uri: Uri): ByteArray {
-        val inputStream = context.contentResolver.openInputStream(uri)
-        val bitmap = BitmapFactory.decodeStream(inputStream)
-        inputStream?.close()
-
-        if (bitmap == null) {
-            Log.e(TAG, "Failed to decode image, falling back to raw bytes")
-            return readRawBytes(uri)
-        }
-
-        val outputStream = ByteArrayOutputStream()
-        var quality = Constants.IMAGE_QUALITY
-        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
-
-        while (outputStream.toByteArray().size > Constants.MAX_IMAGE_SIZE_KB * 1024 && quality > 10) {
-            outputStream.reset()
-            quality -= 10
-            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
-        }
-
-        bitmap.recycle()
-        return outputStream.toByteArray()
-    }
 
     private fun readRawBytes(uri: Uri): ByteArray {
         return context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
