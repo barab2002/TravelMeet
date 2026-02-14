@@ -101,6 +101,7 @@ class RegisterFragment : Fragment() {
 
     private fun observeAuthState() {
         authViewModel.authState.observe(viewLifecycleOwner) { resource ->
+            resource ?: return@observe
             when (resource) {
                 is Resource.Loading -> {
                     binding.progressBar.visibility = View.VISIBLE
@@ -110,11 +111,13 @@ class RegisterFragment : Fragment() {
                     binding.progressBar.visibility = View.GONE
                     binding.btnRegister.visibility = View.VISIBLE
                     findNavController().navigate(R.id.action_registerFragment_to_feedFragment)
+                    authViewModel.clearAuthState()
                 }
                 is Resource.Error -> {
                     binding.progressBar.visibility = View.GONE
                     binding.btnRegister.visibility = View.VISIBLE
                     Toast.makeText(requireContext(), resource.message, Toast.LENGTH_LONG).show()
+                    authViewModel.clearAuthState()
                 }
             }
         }
