@@ -78,7 +78,7 @@
             android:id="@+id/til_title"
             style="@style/TravelMeet.TextInput"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:layout_marginTop="@dimen/spacing_md"
             android:hint="@string/title"
             app:layout_constraintEnd_toEndOf="parent"
@@ -88,7 +88,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_title"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:inputType="textCapSentences"
                 android:textColor="@color/text_primary" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -120,7 +120,7 @@
             android:id="@+id/til_location_manual"
             style="@style/TravelMeet.TextInput"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:layout_marginTop="@dimen/spacing_md"
             android:hint="@string/location_manual"
             app:layout_constraintEnd_toEndOf="parent"
@@ -130,7 +130,7 @@
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/et_location_manual"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:inputType="textCapSentences"
                 android:completionThreshold="2"
                 android:textColor="@color/text_primary" />
