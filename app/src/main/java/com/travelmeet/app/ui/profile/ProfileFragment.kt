@@ -53,6 +53,7 @@ class ProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.tvTotalLikes.text = getString(R.string.total_likes, 0)
         setupRecyclerView()
         setupClickListeners()
         loadUserProfile()
@@ -135,6 +136,8 @@ class ProfileFragment : Fragment() {
         spotViewModel.getSpotsByUser(userId).observe(viewLifecycleOwner) { spots ->
             mySpotsAdapter.submitList(spots)
             binding.tvMySpots.text = getString(R.string.my_spots, spots.size)
+            val totalLikes = spots.sumOf { it.likesCount }
+            binding.tvTotalLikes.text = getString(R.string.total_likes, totalLikes)
         }
     }
 
