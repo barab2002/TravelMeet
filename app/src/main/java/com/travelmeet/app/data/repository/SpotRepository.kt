@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.LiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -28,6 +29,9 @@ class SpotRepository(
     private val storage: FirebaseStorage,
     private val context: Context
 ) {
+    companion object {
+        private const val TAG = "SpotRepository"
+    }
 
     private var snapshotListener: ListenerRegistration? = null
     private val scope = CoroutineScope(Dispatchers.IO)
@@ -39,27 +43,38 @@ class SpotRepository(
         snapshotListener = firestore.collection(Constants.COLLECTION_SPOTS)
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
-                if (error != null || snapshot == null) return@addSnapshotListener
+                if (error != null) {
+                    Log.e(TAG, "Realtime sync error: ${error.message}", error)
+                    return@addSnapshotListener
+                }
+                if (snapshot == null) return@addSnapshotListener
+
                 val currentUserId = auth.currentUser?.uid ?: ""
                 val spots = snapshot.documents.mapNotNull { doc ->
-                    val likedBy = doc.get("likedBy") as? List<*> ?: emptyList<String>()
-                    val imageUrls = doc.get("imageUrls") as? List<String> ?: doc.getString("imageUrl")?.let { listOf(it) } ?: emptyList()
-                    SpotEntity(
-                        id = doc.getString("id") ?: doc.id,
-                        userId = doc.getString("userId") ?: "",
-                        username = doc.getString("username") ?: "",
-                        userPhotoUrl = doc.getString("userPhotoUrl"),
-                        title = doc.getString("title") ?: "",
-                        imageUrls = imageUrls,
-                        description = doc.getString("description") ?: "",
-                        latitude = doc.getDouble("latitude") ?: 0.0,
-                        longitude = doc.getDouble("longitude") ?: 0.0,
-                        locationName = doc.getString("locationName"),
-                        timestamp = doc.getLong("timestamp") ?: 0L,
-                        likesCount = doc.getLong("likesCount")?.toInt() ?: 0,
-                        isLikedByCurrentUser = likedBy.contains(currentUserId)
-                    )
+                    try {
+                        val likedBy = doc.get("likedBy") as? List<*> ?: emptyList<String>()
+                        val imageUrls = doc.get("imageUrls") as? List<String> ?: doc.getString("imageUrl")?.let { listOf(it) } ?: emptyList()
+                        SpotEntity(
+                            id = doc.getString("id") ?: doc.id,
+                            userId = doc.getString("userId") ?: "",
+                            username = doc.getString("username") ?: "",
+                            userPhotoUrl = doc.getString("userPhotoUrl"),
+                            title = doc.getString("title") ?: "",
+                            imageUrls = imageUrls,
+                            description = doc.getString("description") ?: "",
+                            latitude = doc.getDouble("latitude") ?: 0.0,
+                            longitude = doc.getDouble("longitude") ?: 0.0,
+                            locationName = doc.getString("locationName"),
+                            timestamp = doc.getLong("timestamp") ?: 0L,
+                            likesCount = doc.getLong("likesCount")?.toInt() ?: 0,
+                            isLikedByCurrentUser = likedBy.contains(currentUserId)
+                        )
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error parsing spot doc ${doc.id}: ${e.message}")
+                        null
+                    }
                 }
+                Log.d(TAG, "Realtime sync: received ${spots.size} spots from all users")
                 scope.launch {
                     spotDao.deleteAll()
                     spotDao.insertSpots(spots)
@@ -81,35 +96,43 @@ class SpotRepository(
     suspend fun syncSpots(): Resource<List<SpotEntity>> {
         return try {
             val currentUserId = auth.currentUser?.uid ?: ""
+            Log.d(TAG, "Syncing all spots from Firestore...")
             val snapshot = firestore.collection(Constants.COLLECTION_SPOTS)
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()
                 .await()
 
             val spots = snapshot.documents.mapNotNull { doc ->
-                val likedBy = doc.get("likedBy") as? List<*> ?: emptyList<String>()
-                val imageUrls = doc.get("imageUrls") as? List<String> ?: doc.getString("imageUrl")?.let { listOf(it) } ?: emptyList()
-                SpotEntity(
-                    id = doc.getString("id") ?: doc.id,
-                    userId = doc.getString("userId") ?: "",
-                    username = doc.getString("username") ?: "",
-                    userPhotoUrl = doc.getString("userPhotoUrl"),
-                    title = doc.getString("title") ?: "",
-                    imageUrls = imageUrls,
-                    description = doc.getString("description") ?: "",
-                    latitude = doc.getDouble("latitude") ?: 0.0,
-                    longitude = doc.getDouble("longitude") ?: 0.0,
-                    locationName = doc.getString("locationName"),
-                    timestamp = doc.getLong("timestamp") ?: 0L,
-                    likesCount = doc.getLong("likesCount")?.toInt() ?: 0,
-                    isLikedByCurrentUser = likedBy.contains(currentUserId)
-                )
+                try {
+                    val likedBy = doc.get("likedBy") as? List<*> ?: emptyList<String>()
+                    val imageUrls = doc.get("imageUrls") as? List<String> ?: doc.getString("imageUrl")?.let { listOf(it) } ?: emptyList()
+                    SpotEntity(
+                        id = doc.getString("id") ?: doc.id,
+                        userId = doc.getString("userId") ?: "",
+                        username = doc.getString("username") ?: "",
+                        userPhotoUrl = doc.getString("userPhotoUrl"),
+                        title = doc.getString("title") ?: "",
+                        imageUrls = imageUrls,
+                        description = doc.getString("description") ?: "",
+                        latitude = doc.getDouble("latitude") ?: 0.0,
+                        longitude = doc.getDouble("longitude") ?: 0.0,
+                        locationName = doc.getString("locationName"),
+                        timestamp = doc.getLong("timestamp") ?: 0L,
+                        likesCount = doc.getLong("likesCount")?.toInt() ?: 0,
+                        isLikedByCurrentUser = likedBy.contains(currentUserId)
+                    )
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error parsing spot doc ${doc.id}: ${e.message}")
+                    null
+                }
             }
 
+            Log.d(TAG, "Synced ${spots.size} spots from all users")
             spotDao.deleteAll()
             spotDao.insertSpots(spots)
             Resource.Success(spots)
         } catch (e: Exception) {
+            Log.e(TAG, "Failed to sync spots: ${e.message}", e)
             Resource.Error(e.message ?: "Failed to sync spots")
         }
     }
@@ -125,6 +148,7 @@ class SpotRepository(
         return try {
             val user = auth.currentUser ?: return Resource.Error("Not authenticated")
             val spotId = UUID.randomUUID().toString()
+            Log.d(TAG, "Adding spot '$title' with ${imageUris.size} images for user ${user.uid}")
 
             val imageUrls = imageUris.map { uri ->
                 val mimeType = context.contentResolver.getType(uri)
@@ -158,6 +182,7 @@ class SpotRepository(
                 .document(spotId)
                 .set(spotData)
                 .await()
+            Log.d(TAG, "Spot '$title' saved to Firestore with id: $spotId")
 
             val spotEntity = SpotEntity(
                 id = spotId,
@@ -176,8 +201,10 @@ class SpotRepository(
             )
 
             spotDao.insertSpot(spotEntity)
+            Log.d(TAG, "Spot saved to local Room DB")
             Resource.Success(spotEntity)
         } catch (e: Exception) {
+            Log.e(TAG, "Failed to add spot: ${e.message}", e)
             Resource.Error(e.message ?: "Failed to add spot")
         }
     }
