@@ -57,8 +57,9 @@
     <string name="logout">Logout</string>
     <string name="confirm_logout_title">Logout</string>
     <string name="confirm_logout_message">Are you sure you want to logout?</string>
-    <string name="update_profile">Update Profile</string>
+    <string name="update_profile">Save</string>
     <string name="change_photo">Change Photo</string>
+    <string name="updating_profile">Updating profile…</string>
 
     <!-- Map -->
     <string name="map">Map</string>

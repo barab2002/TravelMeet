@@ -1,6 +1,7 @@
 package com.travelmeet.app.ui.profile
 
 import android.app.Activity
+import android.content.DialogInterface
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -30,11 +31,15 @@ class ProfileFragment : Fragment() {
     private val spotViewModel: SpotViewModel by activityViewModels()
     private lateinit var mySpotsAdapter: SpotAdapter
     private var selectedPhotoUri: Uri? = null
+    private var editProfileDialogBinding: DialogEditProfileBinding? = null
 
     private val photoPickerLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri ->
-        uri?.let { selectedPhotoUri = it }
+        uri?.let {
+            selectedPhotoUri = it
+            editProfileDialogBinding?.ivDialogAvatar?.setImageURI(it)
+        }
     }
 
     override fun onCreateView(
@@ -134,52 +139,84 @@ class ProfileFragment : Fragment() {
     }
 
     private fun showEditProfileDialog() {
-        val dialogBinding = DialogEditProfileBinding.inflate(layoutInflater)
+        selectedPhotoUri = null
+        val dialogBinding = DialogEditProfileBinding.inflate(layoutInflater).also {
+            editProfileDialogBinding = it
+        }
         val currentUser = authViewModel.currentUser
 
         dialogBinding.etUsername.setText(currentUser?.displayName ?: "")
         if (currentUser?.photoUrl != null) {
             Picasso.get().load(currentUser.photoUrl).into(dialogBinding.ivDialogAvatar)
+        } else {
+            dialogBinding.ivDialogAvatar.setImageResource(R.drawable.ic_profile)
         }
 
         dialogBinding.btnChangePhoto.setOnClickListener {
             photoPickerLauncher.launch("image/*")
         }
 
-        MaterialAlertDialogBuilder(requireContext())
+        val dialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.edit_profile)
             .setView(dialogBinding.root)
-            .setPositiveButton(R.string.update_profile) { _, _ ->
-                val newUsername = dialogBinding.etUsername.text.toString().trim()
-                if (newUsername.isNotEmpty()) {
-                    authViewModel.updateProfile(newUsername, selectedPhotoUri)
-                }
-            }
+            .setPositiveButton(R.string.update_profile, null)
             .setNegativeButton(R.string.cancel, null)
-            .show()
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener {
+                val newUsername = dialogBinding.etUsername.text.toString().trim()
+                if (newUsername.isEmpty()) {
+                    dialogBinding.tilUsername.error = getString(R.string.username)
+                    return@setOnClickListener
+                }
+                dialogBinding.tilUsername.error = null
+                authViewModel.updateProfile(newUsername, selectedPhotoUri)
+                dialog.dismiss()
+            }
+        }
+
+        dialog.setOnDismissListener {
+            editProfileDialogBinding = null
+            selectedPhotoUri = null
+        }
+
+        dialog.show()
     }
 
     private fun observeProfileUpdate() {
         authViewModel.profileUpdateState.observe(viewLifecycleOwner) { resource ->
             when (resource) {
                 is Resource.Loading -> {
-                    binding.progressBar.visibility = View.VISIBLE
+                    showLoading(getString(R.string.updating_profile))
                 }
                 is Resource.Success -> {
-                    binding.progressBar.visibility = View.GONE
+                    hideLoading()
                     Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show()
                     loadUserProfile()
                 }
                 is Resource.Error -> {
-                    binding.progressBar.visibility = View.GONE
+                    hideLoading()
                     Toast.makeText(requireContext(), resource.message, Toast.LENGTH_LONG).show()
                 }
             }
         }
     }
 
+    private fun showLoading(message: String) {
+        binding.loadingOverlay.visibility = View.VISIBLE
+        binding.profileProgressBar.playAnimation()
+        binding.tvLoadingMessage.text = message
+    }
+
+    private fun hideLoading() {
+        binding.profileProgressBar.cancelAnimation()
+        binding.loadingOverlay.visibility = View.GONE
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
+        editProfileDialogBinding = null
         _binding = null
     }
 }
