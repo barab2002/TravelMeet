@@ -4,7 +4,7 @@ import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.travelmeet.app.data.local.UserDao
 import com.travelmeet.app.data.local.entity.UserEntity
@@ -14,10 +14,12 @@ import kotlinx.coroutines.tasks.await
 
 class AuthRepository(
     private val auth: FirebaseAuth,
-    private val firestore: FirebaseFirestore,
+    private val database: FirebaseDatabase,
     private val storage: FirebaseStorage,
     private val userDao: UserDao
 ) {
+
+    private val usersRef = database.getReference(Constants.COLLECTION_USERS)
 
     val currentUser: FirebaseUser? get() = auth.currentUser
 
@@ -36,17 +38,14 @@ class AuthRepository(
                 .build()
             user.updateProfile(profileUpdate).await()
 
-            // Save to Firestore
-            val userData = hashMapOf(
+            // Save to Realtime Database
+            val userData = hashMapOf<String, Any?>(
                 "uid" to user.uid,
                 "email" to email,
                 "username" to username,
                 "photoUrl" to null
             )
-            firestore.collection(Constants.COLLECTION_USERS)
-                .document(user.uid)
-                .set(userData)
-                .await()
+            usersRef.child(user.uid).setValue(userData).await()
 
             // Cache locally
             userDao.insertUser(
@@ -69,7 +68,7 @@ class AuthRepository(
             val result = auth.signInWithEmailAndPassword(email, password).await()
             val user = result.user ?: return Resource.Error("Login failed")
 
-            // Sync user data from Firestore to local cache
+            // Sync user data from RTDB to local cache
             syncUserData(user.uid)
 
             Resource.Success(user)
@@ -105,16 +104,13 @@ class AuthRepository(
             }.build()
             user.updateProfile(profileUpdate).await()
 
-            // Update Firestore
-            val updates = mutableMapOf<String, Any?>()
+            // Update Realtime Database
+            val updates = hashMapOf<String, Any?>()
             if (username != null) updates["username"] = username
             if (photoUrl != null) updates["photoUrl"] = photoUrl
 
             if (updates.isNotEmpty()) {
-                firestore.collection(Constants.COLLECTION_USERS)
-                    .document(user.uid)
-                    .update(updates as Map<String, Any>)
-                    .await()
+                usersRef.child(user.uid).updateChildren(updates).await()
             }
 
             // Update local cache
@@ -140,7 +136,7 @@ class AuthRepository(
             val cachedUser = userDao.getUserByIdSync(userId)
             if (cachedUser != null) return Resource.Success(cachedUser)
 
-            // Fetch from Firestore
+            // Fetch from Realtime Database
             syncUserData(userId)
             val user = userDao.getUserByIdSync(userId)
                 ?: return Resource.Error("User not found")
@@ -152,17 +148,14 @@ class AuthRepository(
 
     private suspend fun syncUserData(userId: String) {
         try {
-            val doc = firestore.collection(Constants.COLLECTION_USERS)
-                .document(userId)
-                .get()
-                .await()
+            val snapshot = usersRef.child(userId).get().await()
 
-            if (doc.exists()) {
+            if (snapshot.exists()) {
                 val userEntity = UserEntity(
-                    uid = doc.getString("uid") ?: userId,
-                    email = doc.getString("email") ?: "",
-                    username = doc.getString("username") ?: "",
-                    photoUrl = doc.getString("photoUrl")
+                    uid = snapshot.child("uid").getValue(String::class.java) ?: userId,
+                    email = snapshot.child("email").getValue(String::class.java) ?: "",
+                    username = snapshot.child("username").getValue(String::class.java) ?: "",
+                    photoUrl = snapshot.child("photoUrl").getValue(String::class.java)
                 )
                 userDao.insertUser(userEntity)
             }

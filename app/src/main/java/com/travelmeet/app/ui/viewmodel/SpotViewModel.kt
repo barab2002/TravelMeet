@@ -7,7 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.travelmeet.app.data.local.AppDatabase
 import com.travelmeet.app.data.local.entity.SpotEntity
@@ -37,10 +37,11 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         val db = AppDatabase.getInstance(application)
+        val rtdb = FirebaseDatabase.getInstance("https://travelmeet-9602b-default-rtdb.firebaseio.com/")
         repository = SpotRepository(
             db.spotDao(),
             FirebaseAuth.getInstance(),
-            FirebaseFirestore.getInstance(),
+            rtdb,
             FirebaseStorage.getInstance(),
             application.applicationContext
         )

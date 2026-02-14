@@ -7,9 +7,10 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.Query
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +27,7 @@ import java.util.UUID
 class SpotRepository(
     private val spotDao: SpotDao,
     private val auth: FirebaseAuth,
-    private val firestore: FirebaseFirestore,
+    private val database: FirebaseDatabase,
     private val storage: FirebaseStorage,
     private val context: Context
 ) {
@@ -34,42 +35,46 @@ class SpotRepository(
         private const val TAG = "SpotRepository"
     }
 
-    private var snapshotListener: ListenerRegistration? = null
+    private val spotsRef = database.getReference(Constants.COLLECTION_SPOTS)
+    private var realtimeListener: ValueEventListener? = null
     private val scope = CoroutineScope(Dispatchers.IO)
 
     fun getAllSpots(): LiveData<List<SpotEntity>> = spotDao.getAllSpots()
 
     fun startRealtimeSync() {
-        snapshotListener?.remove()
-        snapshotListener = firestore.collection(Constants.COLLECTION_SPOTS)
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    Log.e(TAG, "Realtime sync error: ${error.message}", error)
-                    return@addSnapshotListener
-                }
-                if (snapshot == null) return@addSnapshotListener
+        realtimeListener?.let { spotsRef.removeEventListener(it) }
 
+        val listener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
                 val currentUserId = auth.currentUser?.uid ?: ""
-                val spots = snapshot.documents.mapNotNull { doc ->
+                val spots = snapshot.children.mapNotNull { child ->
                     try {
-                        parseSpotDocument(doc, currentUserId)
+                        parseSpotSnapshot(child, currentUserId)
                     } catch (e: Exception) {
-                        Log.e(TAG, "Error parsing spot doc ${doc.id}: ${e.message}")
+                        Log.e(TAG, "Error parsing spot ${child.key}: ${e.message}")
                         null
                     }
-                }
+                }.sortedByDescending { it.timestamp }
+
                 Log.d(TAG, "Realtime sync: received ${spots.size} spots from all users")
                 scope.launch {
                     spotDao.deleteAll()
                     spotDao.insertSpots(spots)
                 }
             }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e(TAG, "Realtime sync cancelled: ${error.message}")
+            }
+        }
+
+        realtimeListener = listener
+        spotsRef.addValueEventListener(listener)
     }
 
     fun stopRealtimeSync() {
-        snapshotListener?.remove()
-        snapshotListener = null
+        realtimeListener?.let { spotsRef.removeEventListener(it) }
+        realtimeListener = null
     }
 
     fun getSpotsByUser(userId: String): LiveData<List<SpotEntity>> =
@@ -82,20 +87,17 @@ class SpotRepository(
         return withContext(Dispatchers.IO) {
             try {
                 val currentUserId = auth.currentUser?.uid ?: ""
-                Log.d(TAG, "Syncing all spots from Firestore...")
-                val snapshot = firestore.collection(Constants.COLLECTION_SPOTS)
-                    .orderBy("timestamp", Query.Direction.DESCENDING)
-                    .get()
-                    .await()
+                Log.d(TAG, "Syncing all spots from Realtime Database...")
+                val snapshot = spotsRef.get().await()
 
-                val spots = snapshot.documents.mapNotNull { doc ->
+                val spots = snapshot.children.mapNotNull { child ->
                     try {
-                        parseSpotDocument(doc, currentUserId)
+                        parseSpotSnapshot(child, currentUserId)
                     } catch (e: Exception) {
-                        Log.e(TAG, "Error parsing spot doc ${doc.id}: ${e.message}")
+                        Log.e(TAG, "Error parsing spot ${child.key}: ${e.message}")
                         null
                     }
-                }
+                }.sortedByDescending { it.timestamp }
 
                 Log.d(TAG, "Synced ${spots.size} spots from all users")
                 spotDao.deleteAll()
@@ -142,7 +144,9 @@ class SpotRepository(
                 }
 
                 val timestamp = System.currentTimeMillis()
-                val spotData = hashMapOf(
+
+                // Build likedBy as a map (RTDB-friendly)
+                val spotData = hashMapOf<String, Any?>(
                     "id" to spotId,
                     "userId" to user.uid,
                     "username" to (user.displayName ?: "Unknown"),
@@ -155,15 +159,12 @@ class SpotRepository(
                     "locationName" to locationName,
                     "timestamp" to timestamp,
                     "likesCount" to 0,
-                    "likedBy" to emptyList<String>()
+                    "likedBy" to HashMap<String, Boolean>()
                 )
 
-                Log.d(TAG, "Writing spot to Firestore...")
-                firestore.collection(Constants.COLLECTION_SPOTS)
-                    .document(spotId)
-                    .set(spotData)
-                    .await()
-                Log.d(TAG, "Spot '$title' saved to Firestore with id: $spotId")
+                Log.d(TAG, "Writing spot to Realtime Database...")
+                spotsRef.child(spotId).setValue(spotData).await()
+                Log.d(TAG, "Spot '$title' saved to RTDB with id: $spotId")
 
                 val spotEntity = SpotEntity(
                     id = spotId,
@@ -210,7 +211,6 @@ class SpotRepository(
                 if (existingSpot == null) {
                     return@withContext Resource.Error("Spot not found")
                 }
-
                 if (existingSpot.userId != user.uid) {
                     return@withContext Resource.Error("You can only edit your own spots")
                 }
@@ -231,7 +231,7 @@ class SpotRepository(
                     imageUrls = imageUrls + newUrls
                 }
 
-                val updates = mapOf(
+                val updates = hashMapOf<String, Any?>(
                     "title" to title,
                     "description" to description,
                     "imageUrls" to imageUrls,
@@ -240,10 +240,7 @@ class SpotRepository(
                     "locationName" to locationName
                 )
 
-                firestore.collection(Constants.COLLECTION_SPOTS)
-                    .document(spotId)
-                    .update(updates)
-                    .await()
+                spotsRef.child(spotId).updateChildren(updates).await()
 
                 val updatedSpot = existingSpot.copy(
                     title = title,
@@ -273,7 +270,6 @@ class SpotRepository(
                 if (spot == null) {
                     return@withContext Resource.Error("Spot not found")
                 }
-
                 if (spot.userId != user.uid) {
                     return@withContext Resource.Error("You can only delete your own spots")
                 }
@@ -282,16 +278,10 @@ class SpotRepository(
                 spot.imageUrls.forEach { url ->
                     try {
                         storage.getReferenceFromUrl(url).delete().await()
-                    } catch (_: Exception) {
-                        // Image may not exist, continue
-                    }
+                    } catch (_: Exception) { }
                 }
 
-                firestore.collection(Constants.COLLECTION_SPOTS)
-                    .document(spotId)
-                    .delete()
-                    .await()
-
+                spotsRef.child(spotId).removeValue().await()
                 spotDao.deleteSpotById(spotId)
                 Resource.Success(Unit)
             } catch (e: Exception) {
@@ -313,26 +303,30 @@ class SpotRepository(
                     return@withContext Resource.Error("Spot not found")
                 }
 
-                val spotRef = firestore.collection(Constants.COLLECTION_SPOTS).document(spotId)
-                val doc = spotRef.get().await()
-                val likedBy = (doc.get("likedBy") as? List<*>)?.toMutableList() ?: mutableListOf()
+                val spotRef = spotsRef.child(spotId)
+                val snapshot = spotRef.get().await()
 
-                val isCurrentlyLiked = likedBy.contains(user.uid)
-                if (isCurrentlyLiked) {
-                    likedBy.remove(user.uid)
-                } else {
-                    likedBy.add(user.uid)
+                // likedBy is stored as a map { "userId": true }
+                val likedByMap = mutableMapOf<String, Boolean>()
+                snapshot.child("likedBy").children.forEach { child ->
+                    child.key?.let { key -> likedByMap[key] = true }
                 }
 
-                spotRef.update(
-                    mapOf(
-                        "likedBy" to likedBy,
-                        "likesCount" to likedBy.size
-                    )
-                ).await()
+                val isCurrentlyLiked = likedByMap.containsKey(user.uid)
+                if (isCurrentlyLiked) {
+                    likedByMap.remove(user.uid)
+                } else {
+                    likedByMap[user.uid] = true
+                }
+
+                val updates = hashMapOf<String, Any?>(
+                    "likedBy" to likedByMap,
+                    "likesCount" to likedByMap.size
+                )
+                spotRef.updateChildren(updates).await()
 
                 val updatedSpot = spot.copy(
-                    likesCount = likedBy.size,
+                    likesCount = likedByMap.size,
                     isLikedByCurrentUser = !isCurrentlyLiked
                 )
                 spotDao.updateSpot(updatedSpot)
@@ -358,7 +352,6 @@ class SpotRepository(
         var quality = Constants.IMAGE_QUALITY
         bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
 
-        // Compress until under max size
         while (outputStream.toByteArray().size > Constants.MAX_IMAGE_SIZE_KB * 1024 && quality > 10) {
             outputStream.reset()
             quality -= 10
@@ -374,28 +367,33 @@ class SpotRepository(
             ?: ByteArray(0)
     }
 
-    private fun parseSpotDocument(
-        doc: com.google.firebase.firestore.DocumentSnapshot,
-        currentUserId: String
-    ): SpotEntity {
-        val likedBy = doc.get("likedBy") as? List<*> ?: emptyList<String>()
-        val imageUrls = doc.get("imageUrls") as? List<String>
-            ?: doc.getString("imageUrl")?.let { listOf(it) }
-            ?: emptyList()
+    @Suppress("UNCHECKED_CAST")
+    private fun parseSpotSnapshot(snapshot: DataSnapshot, currentUserId: String): SpotEntity {
+        val imageUrls = when (val raw = snapshot.child("imageUrls").value) {
+            is List<*> -> raw.filterIsInstance<String>()
+            else -> {
+                val single = snapshot.child("imageUrl").getValue(String::class.java)
+                if (single != null) listOf(single) else emptyList()
+            }
+        }
+
+        // likedBy is stored as a map { "userId": true }
+        val likedByKeys = snapshot.child("likedBy").children.mapNotNull { it.key }
+
         return SpotEntity(
-            id = doc.getString("id") ?: doc.id,
-            userId = doc.getString("userId") ?: "",
-            username = doc.getString("username") ?: "",
-            userPhotoUrl = doc.getString("userPhotoUrl"),
-            title = doc.getString("title") ?: "",
+            id = snapshot.child("id").getValue(String::class.java) ?: snapshot.key ?: "",
+            userId = snapshot.child("userId").getValue(String::class.java) ?: "",
+            username = snapshot.child("username").getValue(String::class.java) ?: "",
+            userPhotoUrl = snapshot.child("userPhotoUrl").getValue(String::class.java),
+            title = snapshot.child("title").getValue(String::class.java) ?: "",
             imageUrls = imageUrls,
-            description = doc.getString("description") ?: "",
-            latitude = doc.getDouble("latitude") ?: 0.0,
-            longitude = doc.getDouble("longitude") ?: 0.0,
-            locationName = doc.getString("locationName"),
-            timestamp = doc.getLong("timestamp") ?: 0L,
-            likesCount = doc.getLong("likesCount")?.toInt() ?: 0,
-            isLikedByCurrentUser = likedBy.contains(currentUserId)
+            description = snapshot.child("description").getValue(String::class.java) ?: "",
+            latitude = snapshot.child("latitude").getValue(Double::class.java) ?: 0.0,
+            longitude = snapshot.child("longitude").getValue(Double::class.java) ?: 0.0,
+            locationName = snapshot.child("locationName").getValue(String::class.java),
+            timestamp = snapshot.child("timestamp").getValue(Long::class.java) ?: 0L,
+            likesCount = snapshot.child("likesCount").getValue(Int::class.java) ?: likedByKeys.size,
+            isLikedByCurrentUser = likedByKeys.contains(currentUserId)
         )
     }
 }
