@@ -60,6 +60,7 @@
     <string name="update_profile">Save</string>
     <string name="change_photo">Change Photo</string>
     <string name="updating_profile">Updating profile…</string>
+    <string name="total_likes">Total likes: %d</string>
 
     <!-- Map -->
     <string name="map">Map</string>
