@@ -212,6 +212,16 @@
         </LinearLayout>
     </ScrollView>
 
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/profile_load_spinner"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_gravity="center"
+        android:visibility="visible"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/loading_animation" />
+
     <FrameLayout
         android:id="@+id/loading_overlay"
         android:layout_width="match_parent"

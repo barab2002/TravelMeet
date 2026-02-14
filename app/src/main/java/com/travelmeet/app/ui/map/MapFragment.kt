@@ -99,6 +99,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     private fun observeSpots() {
         spotViewModel.allSpots.observe(viewLifecycleOwner) { spots ->
+            binding.mapProgressBar.cancelAnimation()
+            binding.mapProgressBar.visibility = View.GONE
             googleMap?.let { map ->
                 map.clear()
                 spotMarkerMap.clear()

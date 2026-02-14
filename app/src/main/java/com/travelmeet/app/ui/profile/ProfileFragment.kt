@@ -118,13 +118,25 @@ class ProfileFragment : Fragment() {
         }
 
         authViewModel.userData.observe(viewLifecycleOwner) { resource ->
-            if (resource is Resource.Success) {
-                resource.data?.let { userData ->
-                    binding.tvUsername.text = userData.username
-                    binding.tvEmail.text = userData.email
-                    if (!userData.photoUrl.isNullOrEmpty()) {
-                        Picasso.get().load(userData.photoUrl).into(binding.ivAvatar)
+            when (resource) {
+                is Resource.Loading -> {
+                    binding.profileLoadSpinner.visibility = View.VISIBLE
+                    binding.profileLoadSpinner.playAnimation()
+                }
+                is Resource.Success -> {
+                    binding.profileLoadSpinner.cancelAnimation()
+                    binding.profileLoadSpinner.visibility = View.GONE
+                    resource.data?.let { userData ->
+                        binding.tvUsername.text = userData.username
+                        binding.tvEmail.text = userData.email
+                        if (!userData.photoUrl.isNullOrEmpty()) {
+                            Picasso.get().load(userData.photoUrl).into(binding.ivAvatar)
+                        }
                     }
+                }
+                is Resource.Error -> {
+                    binding.profileLoadSpinner.cancelAnimation()
+                    binding.profileLoadSpinner.visibility = View.GONE
                 }
             }
         }

@@ -47,6 +47,7 @@
     <string name="temperature">%d°C</string>
     <string name="confirm_delete_title">Delete Spot</string>
     <string name="confirm_delete_message">Are you sure you want to delete this spot?</string>
+    <string name="deleting_spot">Deleting spot…</string>
 
     <!-- Profile -->
     <string name="profile">Profile</string>
