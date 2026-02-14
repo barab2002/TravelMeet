@@ -1,4 +1,4 @@
-# TravelMeet
+# TravelMeet - Bar Abramovich 323098889 & Idan Tepper 212929103
 
 A modern Android social travel app where users discover, share, and explore travel spots around the world. Built with Kotlin, Firebase, and Google Maps.
 

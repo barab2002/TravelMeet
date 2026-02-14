@@ -26,6 +26,7 @@
     </style>
 
     <style name="TravelMeet.TextInput" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="android:minHeight">56dp</item>
         <item name="boxBackgroundColor">@color/surface</item>
         <item name="boxStrokeColor">@color/primary</item>
         <item name="boxCornerRadiusTopStart">14dp</item>
