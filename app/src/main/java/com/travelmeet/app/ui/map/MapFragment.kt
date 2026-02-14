@@ -75,12 +75,15 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         map.uiSettings.isZoomControlsEnabled = true
         map.uiSettings.isMyLocationButtonEnabled = false
 
+        // Set custom info window adapter
+        map.setInfoWindowAdapter(MarkerInfoWindowAdapter(requireContext()))
+
         // Set marker click listener
         map.setOnInfoWindowClickListener { marker ->
-            val spotId = marker.tag as? String
-            spotId?.let {
+            val spot = marker.tag as? SpotEntity
+            spot?.let {
                 val action = MapFragmentDirections
-                    .actionMapFragmentToSpotDetailFragment(it)
+                    .actionMapFragmentToSpotDetailFragment(it.id)
                 findNavController().navigate(action)
             }
         }
@@ -115,7 +118,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                             .snippet("by ${spot.username}")
                             .icon(BitmapDescriptorFactory.defaultMarker(markerColor))
                     )
-                    marker?.tag = spot.id
+                    marker?.tag = spot
                     spotMarkerMap[spot.id] = spot
                 }
 
