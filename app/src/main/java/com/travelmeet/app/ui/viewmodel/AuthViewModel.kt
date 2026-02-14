@@ -22,8 +22,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: AuthRepository
 
-    private val _authState = MutableLiveData<Resource<FirebaseUser>>()
-    val authState: LiveData<Resource<FirebaseUser>> = _authState
+    private val _authState = MutableLiveData<Resource<FirebaseUser>?>()
+    val authState: LiveData<Resource<FirebaseUser>?> = _authState
 
     private val _profileUpdateState = MutableLiveData<Resource<FirebaseUser>>()
     val profileUpdateState: LiveData<Resource<FirebaseUser>> = _profileUpdateState
@@ -61,6 +61,11 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     fun logout() {
         repository.logout()
+        _authState.value = null
+    }
+
+    fun clearAuthState() {
+        _authState.value = null
     }
 
     fun updateProfile(username: String?, photoUri: Uri?) {
