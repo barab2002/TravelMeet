@@ -34,7 +34,6 @@ class FeedFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
         setupSwipeRefresh()
-        setupClickListeners()
         observeSpots()
 
         // Initial sync
@@ -62,12 +61,6 @@ class FeedFragment : Fragment() {
         binding.swipeRefresh.setProgressBackgroundColorSchemeResource(R.color.surface)
         binding.swipeRefresh.setOnRefreshListener {
             spotViewModel.syncSpots()
-        }
-    }
-
-    private fun setupClickListeners() {
-        binding.fabAddSpot.setOnClickListener {
-            findNavController().navigate(R.id.action_feedFragment_to_addSpotFragment)
         }
     }
 
