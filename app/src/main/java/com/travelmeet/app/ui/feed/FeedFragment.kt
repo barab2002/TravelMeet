@@ -10,16 +10,25 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.travelmeet.app.R
+import com.travelmeet.app.data.local.entity.SpotEntity
 import com.travelmeet.app.databinding.FragmentFeedBinding
 import com.travelmeet.app.ui.viewmodel.SpotViewModel
 import com.travelmeet.app.util.Resource
+import kotlin.math.min
 
 class FeedFragment : Fragment() {
+
+    companion object {
+        private const val PAGE_SIZE = 5
+    }
 
     private var _binding: FragmentFeedBinding? = null
     private val binding get() = _binding!!
     private val spotViewModel: SpotViewModel by activityViewModels()
     private lateinit var spotAdapter: SpotAdapter
+    private lateinit var feedLayoutManager: LinearLayoutManager
+    private var pagedSpots: List<SpotEntity> = emptyList()
+    private var currentPage = 0
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,9 +59,28 @@ class FeedFragment : Fragment() {
                 spotViewModel.toggleLike(spot.id)
             }
         )
+        feedLayoutManager = LinearLayoutManager(requireContext())
         binding.rvSpots.apply {
             adapter = spotAdapter
-            layoutManager = LinearLayoutManager(requireContext())
+            layoutManager = feedLayoutManager
+        }
+        setupPaginationControls()
+    }
+
+    private fun setupPaginationControls() {
+        binding.btnNextPage.setOnClickListener {
+            if (canGoNext()) {
+                currentPage++
+                submitFeedPage()
+                binding.rvSpots.scrollToPosition(0)
+            }
+        }
+        binding.btnPrevPage.setOnClickListener {
+            if (currentPage > 0) {
+                currentPage--
+                submitFeedPage()
+                binding.rvSpots.scrollToPosition(0)
+            }
         }
     }
 
@@ -65,11 +93,18 @@ class FeedFragment : Fragment() {
     }
 
     private fun observeSpots() {
-        // Observe cached spots from Room
         spotViewModel.allSpots.observe(viewLifecycleOwner) { spots ->
-            spotAdapter.submitList(spots)
-            binding.emptyState.visibility = if (spots.isEmpty()) View.VISIBLE else View.GONE
-            binding.rvSpots.visibility = if (spots.isEmpty()) View.GONE else View.VISIBLE
+            pagedSpots = spots
+            currentPage = 0
+            val isEmpty = spots.isEmpty()
+            binding.emptyState.visibility = if (isEmpty) View.VISIBLE else View.GONE
+            binding.rvSpots.visibility = if (isEmpty) View.GONE else View.VISIBLE
+            if (isEmpty) {
+                spotAdapter.submitList(emptyList())
+                updatePaginationUi(0)
+            } else {
+                submitFeedPage()
+            }
         }
 
         // Observe sync state
@@ -97,6 +132,41 @@ class FeedFragment : Fragment() {
                     ).show()
                 }
             }
+        }
+    }
+
+    private fun canGoNext(): Boolean {
+        val pages = totalPages()
+        return pages > 0 && currentPage < pages - 1
+    }
+
+    private fun submitFeedPage() {
+        val pages = totalPages()
+        if (pages == 0) {
+            spotAdapter.submitList(emptyList())
+            updatePaginationUi(pages)
+            return
+        }
+        if (currentPage >= pages) currentPage = pages - 1
+        val startIndex = currentPage * PAGE_SIZE
+        val endIndex = min(startIndex + PAGE_SIZE, pagedSpots.size)
+        val subList = pagedSpots.subList(startIndex, endIndex)
+        spotAdapter.submitList(ArrayList(subList))
+        updatePaginationUi(pages)
+    }
+
+    private fun totalPages(): Int =
+        if (pagedSpots.isEmpty()) 0 else ((pagedSpots.size - 1) / PAGE_SIZE) + 1
+
+    private fun updatePaginationUi(pages: Int) {
+        val showPagination = pagedSpots.size > PAGE_SIZE
+        binding.paginationContainer.visibility = if (showPagination) View.VISIBLE else View.GONE
+        binding.btnPrevPage.isEnabled = showPagination && currentPage > 0
+        binding.btnNextPage.isEnabled = showPagination && currentPage < pages - 1
+        binding.tvPageIndicator.text = if (pages == 0) {
+            getString(R.string.page_indicator, 0, 0)
+        } else {
+            getString(R.string.page_indicator, currentPage + 1, pages)
         }
     }
 
