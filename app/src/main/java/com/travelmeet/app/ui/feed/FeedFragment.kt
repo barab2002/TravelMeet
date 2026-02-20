@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.travelmeet.app.R
 import com.travelmeet.app.databinding.FragmentFeedBinding
 import com.travelmeet.app.ui.viewmodel.SpotViewModel
@@ -34,6 +35,7 @@ class FeedFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
         setupSwipeRefresh()
+        setupToolbar()
         observeSpots()
 
         // Initial sync
@@ -65,8 +67,7 @@ class FeedFragment : Fragment() {
     }
 
     private fun observeSpots() {
-        // Observe cached spots from Room
-        spotViewModel.allSpots.observe(viewLifecycleOwner) { spots ->
+        spotViewModel.feedSpots.observe(viewLifecycleOwner) { spots ->
             spotAdapter.submitList(spots)
             binding.emptyState.visibility = if (spots.isEmpty()) View.VISIBLE else View.GONE
             binding.rvSpots.visibility = if (spots.isEmpty()) View.GONE else View.VISIBLE
@@ -98,6 +99,35 @@ class FeedFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun setupToolbar() {
+        binding.toolbar.inflateMenu(R.menu.menu_feed)
+        binding.toolbar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_sort -> {
+                    showSortDialog()
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    private fun showSortDialog() {
+        val options = SpotSortOption.OPTIONS
+        val current = spotViewModel.sortOption.value ?: SpotSortOption.DEFAULT
+        val labels = options.map { getString(it.labelRes) }.toTypedArray()
+        val selectedIndex = options.indexOf(current).takeIf { it >= 0 } ?: 0
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.sort_by)
+            .setSingleChoiceItems(labels, selectedIndex) { dialog, which ->
+                spotViewModel.setSortOption(options[which])
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     override fun onDestroyView() {

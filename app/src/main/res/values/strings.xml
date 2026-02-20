@@ -80,4 +80,10 @@
     <string name="permission_required">Permission required</string>
     <string name="location_permission_rationale">Location permission is needed to tag spots with your current location.</string>
     <string name="camera_permission_rationale">Camera permission is needed to take photos.</string>
+
+    <!-- Sorting -->
+    <string name="sort">Sort</string>
+    <string name="sort_by">Sort by</string>
+    <string name="sort_newest">Newest first</string>
+    <string name="sort_oldest">Oldest first</string>
 </resources>
