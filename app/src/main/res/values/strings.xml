@@ -86,4 +86,6 @@
     <string name="sort_by">Sort by</string>
     <string name="sort_newest">Newest first</string>
     <string name="sort_oldest">Oldest first</string>
+    <string name="sort_most_liked">Most liked</string>
+    <string name="sort_least_liked">Least liked</string>
 </resources>
