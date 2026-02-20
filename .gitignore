@@ -20,3 +20,4 @@ google-services.json
 *.log
 secrets.properties
 .claude/
+gradle.properties

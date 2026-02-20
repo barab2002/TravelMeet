@@ -4,6 +4,7 @@ import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -12,6 +13,8 @@ import com.google.firebase.storage.FirebaseStorage
 import com.travelmeet.app.data.local.AppDatabase
 import com.travelmeet.app.data.local.entity.SpotEntity
 import com.travelmeet.app.data.repository.SpotRepository
+import com.travelmeet.app.ui.feed.SpotSortOption
+import com.travelmeet.app.ui.feed.sort
 import com.travelmeet.app.util.Resource
 import kotlinx.coroutines.launch
 
@@ -19,6 +22,12 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: SpotRepository
     val allSpots: LiveData<List<SpotEntity>>
+    private val _feedSpots = MediatorLiveData<List<SpotEntity>>()
+    val feedSpots: LiveData<List<SpotEntity>> = _feedSpots
+
+    private val _sortOption = MutableLiveData(SpotSortOption.DEFAULT)
+    val sortOption: LiveData<SpotSortOption> = _sortOption
+    private var latestSpots: List<SpotEntity> = emptyList()
 
     private val _addSpotState = MutableLiveData<Resource<SpotEntity>>()
     val addSpotState: LiveData<Resource<SpotEntity>> = _addSpotState
@@ -47,6 +56,15 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
         )
         allSpots = repository.getAllSpots()
         repository.startRealtimeSync()
+
+        _feedSpots.addSource(allSpots) { spots ->
+            latestSpots = spots
+            val option = _sortOption.value ?: SpotSortOption.DEFAULT
+            _feedSpots.value = option.sort(spots)
+        }
+        _feedSpots.addSource(_sortOption) { option ->
+            _feedSpots.value = option.sort(latestSpots)
+        }
     }
 
     fun syncSpots() {
@@ -132,6 +150,12 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
             } catch (e: Exception) {
                 _likeState.postValue(Resource.Error(e.message ?: "Failed to toggle like"))
             }
+        }
+    }
+
+    fun setSortOption(option: SpotSortOption) {
+        if (_sortOption.value != option) {
+            _sortOption.value = option
         }
     }
 }
