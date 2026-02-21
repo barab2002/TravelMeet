@@ -37,8 +37,8 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
     private val _updateSpotState = MutableLiveData<Resource<SpotEntity>>()
     val updateSpotState: LiveData<Resource<SpotEntity>> = _updateSpotState
 
-    private val _deleteSpotState = MutableLiveData<Resource<Unit>>()
-    val deleteSpotState: LiveData<Resource<Unit>> = _deleteSpotState
+    private val _deleteSpotState = MutableLiveData<Resource<Unit>?>()
+    val deleteSpotState: LiveData<Resource<Unit>?> = _deleteSpotState
 
     private val _syncState = MutableLiveData<Resource<List<SpotEntity>>>()
     val syncState: LiveData<Resource<List<SpotEntity>>> = _syncState
@@ -267,6 +267,10 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
 
     fun resetUpdateSpotState() {
         _updateSpotState.value = null
+    }
+
+    fun resetDeleteSpotState() {
+        _deleteSpotState.value = null
     }
 
     fun observeComments(spotId: String): LiveData<List<SpotComment>> {

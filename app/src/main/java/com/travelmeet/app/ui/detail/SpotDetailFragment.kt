@@ -204,6 +204,7 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
     private fun observeDeleteState() {
         spotViewModel.deleteSpotState.observe(viewLifecycleOwner) { resource ->
             when (resource) {
+                null -> return@observe
                 is Resource.Loading -> {
                     binding.deleteLoadingOverlay.visibility = View.VISIBLE
                     binding.deleteProgressBar.playAnimation()
@@ -213,11 +214,13 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
                     binding.deleteLoadingOverlay.visibility = View.GONE
                     Toast.makeText(requireContext(), "Spot deleted", Toast.LENGTH_SHORT).show()
                     findNavController().navigateUp()
+                    spotViewModel.resetDeleteSpotState()
                 }
                 is Resource.Error -> {
                     binding.deleteProgressBar.cancelAnimation()
                     binding.deleteLoadingOverlay.visibility = View.GONE
                     Toast.makeText(requireContext(), resource.message, Toast.LENGTH_LONG).show()
+                    spotViewModel.resetDeleteSpotState()
                 }
             }
         }
