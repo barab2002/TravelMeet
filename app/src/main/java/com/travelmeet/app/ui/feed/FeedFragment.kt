@@ -13,7 +13,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
@@ -24,6 +23,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.travelmeet.app.R
 import com.travelmeet.app.databinding.FragmentFeedBinding
 import com.travelmeet.app.ui.viewmodel.SpotViewModel
+import com.travelmeet.app.util.PlacesProvider
 import com.travelmeet.app.util.Resource
 
 class FeedFragment : Fragment() {
@@ -56,10 +56,7 @@ class FeedFragment : Fragment() {
         observeSpots()
 
         // Initialize Places client once per fragment lifecycle
-        if (!Places.isInitialized()) {
-            Places.initialize(requireContext(), getString(R.string.google_maps_key))
-        }
-        placesClient = Places.createClient(requireContext())
+        placesClient = PlacesProvider.getClient(requireContext())
 
         // Initial sync
         spotViewModel.syncSpots()
