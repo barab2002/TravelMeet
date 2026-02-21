@@ -194,7 +194,7 @@
                                     android:id="@+id/iv_like_icon"
                                     android:layout_width="24dp"
                                     android:layout_height="24dp"
-                                    android:src="@drawable/ic_likes"
+                                    android:src="@drawable/ic_like_outline"
                                     app:tint="@color/error"
                                     android:contentDescription="Likes" />
 

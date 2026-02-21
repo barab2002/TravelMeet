@@ -128,6 +128,8 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
         binding.tvUsername.text = spot.username
         binding.tvTimestamp.text = TimeUtils.getRelativeTimeString(spot.timestamp)
         binding.tvLikesCount.text = "${spot.likesCount} likes"
+        val likeIcon = if (spot.isLikedByCurrentUser) R.drawable.ic_like_filled else R.drawable.ic_like_outline
+        binding.ivLikeIcon.setImageResource(likeIcon)
         val saveIcon = if (spot.isSavedByCurrentUser) R.drawable.ic_bookmark_filled else R.drawable.ic_bookmark_outline
         binding.ivSaveIcon.setImageResource(saveIcon)
         binding.tvSaveStatus.visibility = if (spot.isSavedByCurrentUser) View.VISIBLE else View.GONE
