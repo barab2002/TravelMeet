@@ -79,6 +79,9 @@ class FeedFragment : Fragment() {
             },
             onCommentClick = { spot ->
                 showAddCommentDialog(spot)
+            },
+            onSaveClick = { spot ->
+                spotViewModel.toggleSave(spot.id)
             }
         )
         binding.rvSpots.apply {

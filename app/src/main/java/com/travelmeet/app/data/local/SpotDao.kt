@@ -17,6 +17,9 @@ interface SpotDao {
     @Query("SELECT * FROM spots WHERE userId = :userId ORDER BY timestamp DESC")
     fun getSpotsByUser(userId: String): LiveData<List<SpotEntity>>
 
+    @Query("SELECT * FROM spots WHERE isSavedByCurrentUser = 1 ORDER BY timestamp DESC")
+    fun getSavedSpots(): LiveData<List<SpotEntity>>
+
     @Query("SELECT * FROM spots WHERE id = :spotId")
     fun getSpotById(spotId: String): LiveData<SpotEntity?>
 

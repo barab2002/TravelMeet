@@ -17,5 +17,6 @@ data class SpotEntity(
     val locationName: String?,
     val timestamp: Long,
     val likesCount: Int = 0,
-    val isLikedByCurrentUser: Boolean = false
+    val isLikedByCurrentUser: Boolean = false,
+    val isSavedByCurrentUser: Boolean = false
 )

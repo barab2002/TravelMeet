@@ -55,6 +55,8 @@
     <string name="profile">Profile</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="my_spots">My Spots (%d)</string>
+    <string name="saved_spots">Saved Spots</string>
+    <string name="saved_spots_count">Saved Spots (%d)</string>
     <string name="settings">Settings</string>
     <string name="dark_mode">Dark Mode</string>
     <string name="logout">Logout</string>
@@ -64,6 +66,7 @@
     <string name="change_photo">Change Photo</string>
     <string name="updating_profile">Updating profile…</string>
     <string name="total_likes">Total likes: %d</string>
+    <string name="empty_saved_spots">You haven\'t saved any spots yet.</string>
 
     <!-- Map -->
     <string name="map">Map</string>

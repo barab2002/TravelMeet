@@ -113,6 +113,10 @@
         <action
             android:id="@+id/action_profileFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
+
+        <action
+            android:id="@+id/action_profileFragment_to_savedSpotsFragment"
+            app:destination="@id/savedSpotsFragment" />
     </fragment>
 
     <fragment
@@ -122,6 +126,16 @@
         tools:layout="@layout/fragment_my_spots">
         <action
             android:id="@+id/action_mySpotsFragment_to_spotDetailFragment"
+            app:destination="@id/spotDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/savedSpotsFragment"
+        android:name="com.travelmeet.app.ui.profile.SavedSpotsFragment"
+        android:label="Saved Spots"
+        tools:layout="@layout/fragment_saved_spots">
+        <action
+            android:id="@+id/action_savedSpotsFragment_to_spotDetailFragment"
             app:destination="@id/spotDetailFragment" />
     </fragment>
 

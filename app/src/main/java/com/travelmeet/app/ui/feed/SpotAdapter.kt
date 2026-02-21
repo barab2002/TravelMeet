@@ -18,7 +18,8 @@ import com.travelmeet.app.util.TimeUtils
 class SpotAdapter(
     private val onItemClick: (SpotEntity) -> Unit,
     private val onLikeClick: (SpotEntity) -> Unit,
-    private val onCommentClick: (SpotEntity) -> Unit
+    private val onCommentClick: (SpotEntity) -> Unit,
+    private val onSaveClick: (SpotEntity) -> Unit
 ) : ListAdapter<SpotEntity, SpotAdapter.SpotViewHolder>(SpotDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SpotViewHolder {
@@ -53,6 +54,12 @@ class SpotAdapter(
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onCommentClick(getItem(position))
+                }
+            }
+            binding.ivSave.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onSaveClick(getItem(position))
                 }
             }
         }
@@ -103,6 +110,9 @@ class SpotAdapter(
 
             val likeIcon = if (spot.isLikedByCurrentUser) R.drawable.ic_like_filled else R.drawable.ic_like_outline
             binding.ivLike.setImageResource(likeIcon)
+
+            val saveIcon = if (spot.isSavedByCurrentUser) R.drawable.ic_bookmark_filled else R.drawable.ic_bookmark_outline
+            binding.ivSave.setImageResource(saveIcon)
         }
 
         private fun setupDots(container: LinearLayout, count: Int, activeIndex: Int) {
