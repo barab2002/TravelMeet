@@ -20,6 +20,7 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.travelmeet.app.R
 import com.travelmeet.app.databinding.FragmentFeedBinding
 import com.travelmeet.app.ui.viewmodel.SpotViewModel
@@ -154,9 +155,36 @@ class FeedFragment : Fragment() {
             chip.isCheckable = true
             chip.isChecked = option == sortOption
             chip.setOnClickListener {
-                for (i in 0 until chipGroup.childCount) {
-                    val childChip = chipGroup.getChildAt(i) as? com.google.android.material.chip.Chip ?: continue
-                    childChip.isChecked = childChip == chip
+                // If a location filter is active, confirm before removing it
+                if (referenceLat != null && referenceLng != null) {
+                    val previousChecked = chipGroup.checkedChipId
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(R.string.remove_location_filter_title)
+                        .setMessage(R.string.remove_location_filter_message)
+                        .setNegativeButton(R.string.cancel) { _, _ ->
+                            // Revert to previous selection
+                            for (i in 0 until chipGroup.childCount) {
+                                val child = chipGroup.getChildAt(i) as? com.google.android.material.chip.Chip ?: continue
+                                child.isChecked = child.id == previousChecked
+                            }
+                        }
+                        .setPositiveButton(R.string.ok) { _, _ ->
+                            // Clear location filter in ViewModel
+                            referenceLat = null
+                            referenceLng = null
+                            spotViewModel.setFilters(null, null, null, null, null, null)
+                            // Allow this chip to be the only checked one
+                            for (i in 0 until chipGroup.childCount) {
+                                val childChip = chipGroup.getChildAt(i) as? com.google.android.material.chip.Chip ?: continue
+                                childChip.isChecked = childChip == chip
+                            }
+                        }
+                        .show()
+                } else {
+                    for (i in 0 until chipGroup.childCount) {
+                        val childChip = chipGroup.getChildAt(i) as? com.google.android.material.chip.Chip ?: continue
+                        childChip.isChecked = childChip == chip
+                    }
                 }
             }
             chipGroup.addView(chip)
@@ -210,6 +238,7 @@ class FeedFragment : Fragment() {
         val distanceUnitInput = view.findViewById<com.google.android.material.textfield.MaterialAutoCompleteTextView>(R.id.et_distance_unit)
 
         // Pre-fill from ViewModel if we have previous filters
+        searchInput.setText(spotViewModel.getSearchQuery() ?: "")
         locationInput.setText(spotViewModel.getLastLocationName() ?: "", false)
         distanceValueInput.setText(spotViewModel.getLastDistanceRaw() ?: "")
         val lastUnit = spotViewModel.getLastDistanceUnit()
@@ -235,9 +264,11 @@ class FeedFragment : Fragment() {
             referenceLat = null
             referenceLng = null
             spotViewModel.setFilters(null, null, null, null, null, null)
+            spotViewModel.setSearchQuery(null)
         }
 
         applyButton.setOnClickListener {
+            val searchText = searchInput.text?.toString()?.trim()?.ifEmpty { null }
             val locationText = locationInput.text?.toString()?.trim()?.ifEmpty { null }
             val rawValue = distanceValueInput.text?.toString()?.trim()?.ifEmpty { null }
             val unit = distanceUnitInput.text?.toString()?.trim()?.lowercase()?.ifEmpty { null }
@@ -261,6 +292,13 @@ class FeedFragment : Fragment() {
                 rawDistance = rawValue,
                 distanceUnit = unit
             )
+
+            // If a reference location is set, reset sort to default so UI matches distance-based sorting
+            if (referenceLat != null && referenceLng != null) {
+                spotViewModel.setSortOption(SpotSortOption.DEFAULT)
+            }
+
+            spotViewModel.setSearchQuery(searchText)
 
             dialog.dismiss()
         }

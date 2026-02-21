@@ -100,6 +100,10 @@
     <string name="filter_distance_value_hint">Max distance</string>
     <string name="filter_distance_unit_hint">Unit (km or m)</string>
 
+    <!-- Feed sort/filter dialogs -->
+    <string name="remove_location_filter_title">Remove location filter?</string>
+    <string name="remove_location_filter_message">Changing sort will remove the current location filter and show results for all locations.</string>
+
     <!-- Google Maps API Key -->
     <string name="google_maps_key">YOUR_GOOGLE_MAPS_API_KEY_HERE</string>
 </resources>
