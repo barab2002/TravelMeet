@@ -43,6 +43,8 @@ class FeedFragment : Fragment() {
     private var commentDialog: androidx.appcompat.app.AlertDialog? = null
     private var commentInput: com.google.android.material.textfield.TextInputEditText? = null
     private var pendingCommentSpotId: String? = null
+    private var hasDeliveredInitialFeed = false
+    private var hasCompletedInitialSync = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,6 +57,10 @@ class FeedFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.feedInitialOverlay.visibility = View.VISIBLE
+        binding.feedInitialProgressBar.playAnimation()
+        hasDeliveredInitialFeed = false
+        hasCompletedInitialSync = false
         setupRecyclerView()
         setupSwipeRefresh()
         setupToolbar()
@@ -103,6 +109,8 @@ class FeedFragment : Fragment() {
             spotAdapter.submitList(spots)
             binding.emptyState.visibility = if (spots.isEmpty()) View.VISIBLE else View.GONE
             binding.rvSpots.visibility = if (spots.isEmpty()) View.GONE else View.VISIBLE
+            hasDeliveredInitialFeed = true
+            hideInitialOverlayIfReady()
         }
 
         // Observe sync state
@@ -118,6 +126,8 @@ class FeedFragment : Fragment() {
                     binding.progressBar.cancelAnimation()
                     binding.progressBar.visibility = View.GONE
                     binding.swipeRefresh.isRefreshing = false
+                    hasCompletedInitialSync = true
+                    hideInitialOverlayIfReady()
                 }
                 is Resource.Error -> {
                     binding.progressBar.cancelAnimation()
@@ -128,8 +138,17 @@ class FeedFragment : Fragment() {
                         resource.message ?: getString(R.string.no_internet),
                         Toast.LENGTH_SHORT
                     ).show()
+                    hasCompletedInitialSync = true
+                    hideInitialOverlayIfReady()
                 }
             }
+        }
+    }
+
+    private fun hideInitialOverlayIfReady() {
+        if (hasDeliveredInitialFeed && hasCompletedInitialSync) {
+            binding.feedInitialProgressBar.cancelAnimation()
+            binding.feedInitialOverlay.visibility = View.GONE
         }
     }
 
