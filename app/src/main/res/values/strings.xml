@@ -70,6 +70,7 @@
 
     <!-- Map -->
     <string name="map">Map</string>
+    <string name="map_unknown_spot">Unknown spot</string>
 
     <!-- Navigation -->
     <string name="home">Home</string>
