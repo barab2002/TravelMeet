@@ -134,6 +134,17 @@
                     android:textSize="12sp" />
 
                 <ImageView
+                    android:id="@+id/iv_comment"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="@dimen/spacing_md"
+                    android:background="@drawable/bg_button_circle"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_edit"
+                    app:tint="@color/primary"
+                    android:contentDescription="Add comment" />
+
+                <ImageView
                     android:id="@+id/iv_like"
                     android:layout_width="24dp"
                     android:layout_height="24dp"

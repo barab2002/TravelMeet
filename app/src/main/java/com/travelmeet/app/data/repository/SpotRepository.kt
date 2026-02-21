@@ -18,12 +18,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.travelmeet.app.data.local.SpotDao
 import com.travelmeet.app.data.local.entity.SpotEntity
+import com.travelmeet.app.data.model.SpotComment
 import com.travelmeet.app.util.Constants
 import com.travelmeet.app.util.ImageCompressionUtils
 import com.travelmeet.app.util.Resource
 import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
 import java.util.UUID
+import com.google.firebase.database.DatabaseReference
 
 class SpotRepository(
     private val spotDao: SpotDao,
@@ -39,6 +41,8 @@ class SpotRepository(
     private val spotsRef = database.getReference(Constants.COLLECTION_SPOTS)
     private var realtimeListener: ValueEventListener? = null
     private val scope = CoroutineScope(Dispatchers.IO)
+    private val commentListeners = mutableMapOf<String, ValueEventListener>()
+    private val commentRefs = mutableMapOf<String, DatabaseReference>()
 
     fun getAllSpots(): LiveData<List<SpotEntity>> = spotDao.getAllSpots()
 
@@ -76,6 +80,7 @@ class SpotRepository(
     fun stopRealtimeSync() {
         realtimeListener?.let { spotsRef.removeEventListener(it) }
         realtimeListener = null
+        clearCommentListeners()
     }
 
     fun getSpotsByUser(userId: String): LiveData<List<SpotEntity>> =
@@ -339,10 +344,76 @@ class SpotRepository(
         }
     }
 
+    fun observeComments(spotId: String, onUpdate: (List<SpotComment>) -> Unit) {
+        val commentsRef = spotsRef.child(spotId).child(Constants.NODE_COMMENTS)
+        commentListeners[spotId]?.let { listener ->
+            commentRefs[spotId]?.removeEventListener(listener)
+        }
+        val listener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val comments = snapshot.children.mapNotNull { parseCommentSnapshot(it, spotId) }
+                    .sortedByDescending { it.timestamp }
+                onUpdate(comments)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e(TAG, "Comments listener cancelled for $spotId: ${'$'}{error.message}")
+            }
+        }
+        commentsRef.addValueEventListener(listener)
+        commentListeners[spotId] = listener
+        commentRefs[spotId] = commentsRef
+    }
+
+    fun removeCommentsListener(spotId: String) {
+        commentListeners.remove(spotId)?.let { listener ->
+            commentRefs.remove(spotId)?.removeEventListener(listener)
+        }
+    }
+
+    suspend fun addComment(spotId: String, text: String): Resource<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val user = auth.currentUser ?: return@withContext Resource.Error("Not authenticated")
+                val cleaned = text.trim()
+                if (cleaned.isEmpty()) {
+                    return@withContext Resource.Error("Comment cannot be empty")
+                }
+                val commentId = UUID.randomUUID().toString()
+                val timestamp = System.currentTimeMillis()
+                val commentData = hashMapOf(
+                    "id" to commentId,
+                    "spotId" to spotId,
+                    "userId" to user.uid,
+                    "username" to (user.displayName ?: "Unknown"),
+                    "userPhotoUrl" to user.photoUrl?.toString(),
+                    "text" to cleaned,
+                    "timestamp" to timestamp
+                )
+                spotsRef.child(spotId)
+                    .child(Constants.NODE_COMMENTS)
+                    .child(commentId)
+                    .setValue(commentData)
+                    .await()
+                Resource.Success(Unit)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to add comment: ${'$'}{e.message}", e)
+                Resource.Error(e.message ?: "Failed to add comment")
+            }
+        }
+    }
 
     private fun readRawBytes(uri: Uri): ByteArray {
         return context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
             ?: ByteArray(0)
+    }
+
+    private fun clearCommentListeners() {
+        commentListeners.forEach { (spotId, listener) ->
+            commentRefs[spotId]?.removeEventListener(listener)
+        }
+        commentListeners.clear()
+        commentRefs.clear()
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -372,6 +443,24 @@ class SpotRepository(
             timestamp = snapshot.child("timestamp").getValue(Long::class.java) ?: 0L,
             likesCount = snapshot.child("likesCount").getValue(Int::class.java) ?: likedByKeys.size,
             isLikedByCurrentUser = likedByKeys.contains(currentUserId)
+        )
+    }
+
+    private fun parseCommentSnapshot(snapshot: DataSnapshot, spotId: String): SpotComment? {
+        val id = snapshot.child("id").getValue(String::class.java) ?: snapshot.key ?: return null
+        val text = snapshot.child("text").getValue(String::class.java) ?: return null
+        val userId = snapshot.child("userId").getValue(String::class.java) ?: return null
+        val username = snapshot.child("username").getValue(String::class.java) ?: "Unknown"
+        val timestamp = snapshot.child("timestamp").getValue(Long::class.java) ?: 0L
+        val photo = snapshot.child("userPhotoUrl").getValue(String::class.java)
+        return SpotComment(
+            id = id,
+            spotId = spotId,
+            userId = userId,
+            username = username,
+            userPhotoUrl = photo,
+            text = text,
+            timestamp = timestamp
         )
     }
 }

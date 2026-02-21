@@ -21,6 +21,7 @@ import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.travelmeet.app.R
+import com.travelmeet.app.data.local.entity.SpotEntity
 import com.travelmeet.app.databinding.FragmentFeedBinding
 import com.travelmeet.app.ui.viewmodel.SpotViewModel
 import com.travelmeet.app.util.PlacesProvider
@@ -39,6 +40,10 @@ class FeedFragment : Fragment() {
     private var referenceLat: Double? = null
     private var referenceLng: Double? = null
 
+    private var commentDialog: androidx.appcompat.app.AlertDialog? = null
+    private var commentInput: com.google.android.material.textfield.TextInputEditText? = null
+    private var pendingCommentSpotId: String? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -54,6 +59,7 @@ class FeedFragment : Fragment() {
         setupSwipeRefresh()
         setupToolbar()
         observeSpots()
+        observeCommentState()
 
         // Initialize Places client once per fragment lifecycle
         placesClient = PlacesProvider.getClient(requireContext())
@@ -70,6 +76,9 @@ class FeedFragment : Fragment() {
             },
             onLikeClick = { spot ->
                 spotViewModel.toggleLike(spot.id)
+            },
+            onCommentClick = { spot ->
+                showAddCommentDialog(spot)
             }
         )
         binding.rvSpots.apply {
@@ -116,6 +125,32 @@ class FeedFragment : Fragment() {
                         resource.message ?: getString(R.string.no_internet),
                         Toast.LENGTH_SHORT
                     ).show()
+                }
+            }
+        }
+    }
+
+    private fun observeCommentState() {
+        spotViewModel.commentState.observe(viewLifecycleOwner) { state ->
+            state ?: return@observe
+            when (state) {
+                is Resource.Loading -> {
+                    commentInput?.isEnabled = false
+                    view?.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_submit)?.isEnabled = false
+                }
+                is Resource.Success -> {
+                    Toast.makeText(requireContext(), R.string.comments, Toast.LENGTH_SHORT).show()
+                    commentDialog?.dismiss()
+                    commentDialog = null
+                    commentInput = null
+                    pendingCommentSpotId = null
+                    spotViewModel.resetCommentState()
+                }
+                is Resource.Error -> {
+                    commentInput?.isEnabled = true
+                    view?.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_submit)?.isEnabled = true
+                    Toast.makeText(requireContext(), state.message ?: getString(R.string.error), Toast.LENGTH_LONG).show()
+                    spotViewModel.resetCommentState()
                 }
             }
         }
@@ -354,6 +389,44 @@ class FeedFragment : Fragment() {
                     }
                 }
         }
+    }
+
+    private fun showAddCommentDialog(spot: SpotEntity) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_comment, null)
+        val input = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_comment)
+        val til = dialogView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.til_comment)
+        val btnSubmit = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_submit)
+        val btnCancel = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_cancel)
+
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogView)
+            .create()
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnSubmit.setOnClickListener {
+            val text = input.text?.toString()?.trim().orEmpty()
+            if (text.length < 2) {
+                til.error = getString(R.string.add_comment_hint)
+                return@setOnClickListener
+            }
+            til.error = null
+            pendingCommentSpotId = spot.id
+            commentInput = input
+            view?.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_submit)?.isEnabled = false
+            spotViewModel.addComment(spot.id, text)
+        }
+
+        dialog.setOnDismissListener {
+            commentDialog = null
+            commentInput = null
+            pendingCommentSpotId = null
+        }
+
+        dialog.show()
+        commentDialog = dialog
     }
 
     override fun onDestroyView() {

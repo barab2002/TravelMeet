@@ -13,6 +13,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.travelmeet.app.data.local.AppDatabase
 import com.travelmeet.app.data.local.entity.SpotEntity
+import com.travelmeet.app.data.model.SpotComment
 import com.travelmeet.app.data.repository.SpotRepository
 import com.travelmeet.app.ui.feed.SpotSortOption
 import com.travelmeet.app.ui.feed.sort
@@ -45,6 +46,9 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
     private val _likeState = MutableLiveData<Resource<SpotEntity>>()
     val likeState: LiveData<Resource<SpotEntity>> = _likeState
 
+    private val _commentState = MutableLiveData<Resource<Unit>?>()
+    val commentState: LiveData<Resource<Unit>?> = _commentState
+
     private var referenceLatitude: Double? = null
     private var referenceLongitude: Double? = null
     private var maxDistanceMeters: Double? = null
@@ -52,6 +56,9 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
     private var lastDistanceRaw: String? = null
     private var lastDistanceUnit: String? = null
     private var searchQuery: String? = null
+
+    private val listeningCommentSpots = mutableSetOf<String>()
+    private val commentsLiveData = mutableMapOf<String, MutableLiveData<List<SpotComment>>>()
 
     init {
         val db = AppDatabase.getInstance(application)
@@ -139,6 +146,8 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
     override fun onCleared() {
         super.onCleared()
         repository.stopRealtimeSync()
+        listeningCommentSpots.forEach { repository.removeCommentsListener(it) }
+        listeningCommentSpots.clear()
     }
 
     fun getSpotsByUser(userId: String): LiveData<List<SpotEntity>> =
@@ -258,5 +267,34 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
 
     fun resetUpdateSpotState() {
         _updateSpotState.value = null
+    }
+
+    fun observeComments(spotId: String): LiveData<List<SpotComment>> {
+        val liveData = commentsLiveData.getOrPut(spotId) { MutableLiveData(emptyList()) }
+        if (!listeningCommentSpots.contains(spotId)) {
+            listeningCommentSpots.add(spotId)
+            repository.observeComments(spotId) { comments ->
+                liveData.postValue(comments)
+            }
+        }
+        return liveData
+    }
+
+    fun stopObservingComments(spotId: String) {
+        if (listeningCommentSpots.remove(spotId)) {
+            repository.removeCommentsListener(spotId)
+        }
+    }
+
+    fun addComment(spotId: String, text: String) {
+        _commentState.value = Resource.Loading()
+        viewModelScope.launch {
+            val result = repository.addComment(spotId, text)
+            _commentState.postValue(result)
+        }
+    }
+
+    fun resetCommentState() {
+        _commentState.value = null
     }
 }
