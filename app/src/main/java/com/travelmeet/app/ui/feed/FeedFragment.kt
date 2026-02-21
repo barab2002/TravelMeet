@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.travelmeet.app.R
 import com.travelmeet.app.databinding.FragmentFeedBinding
 import com.travelmeet.app.ui.viewmodel.SpotViewModel
@@ -106,7 +106,7 @@ class FeedFragment : Fragment() {
         binding.toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_sort -> {
-                    showSortDialog()
+                    showSortFilterSheet()
                     true
                 }
                 else -> false
@@ -114,20 +114,61 @@ class FeedFragment : Fragment() {
         }
     }
 
-    private fun showSortDialog() {
-        val options = SpotSortOption.OPTIONS
-        val current = spotViewModel.sortOption.value ?: SpotSortOption.DEFAULT
-        val labels = options.map { getString(it.labelRes) }.toTypedArray()
-        val selectedIndex = options.indexOf(current).takeIf { it >= 0 } ?: 0
+    // New nicer UI: bottom sheet with sort + search + location placeholders
+    private fun showSortFilterSheet() {
+        val dialog = BottomSheetDialog(requireContext())
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_sort_filter, null)
 
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.sort_by)
-            .setSingleChoiceItems(labels, selectedIndex) { dialog, which ->
-                spotViewModel.setSortOption(options[which])
-                dialog.dismiss()
+        val sortOption = spotViewModel.sortOption.value ?: SpotSortOption.DEFAULT
+
+        val chipGroup = view.findViewById<com.google.android.material.chip.ChipGroup>(R.id.sortChipGroup)
+        chipGroup.removeAllViews()
+        SpotSortOption.OPTIONS.forEach { option ->
+            val chip = layoutInflater.inflate(R.layout.item_filter_chip, chipGroup, false) as com.google.android.material.chip.Chip
+            chip.text = getString(option.labelRes)
+            chip.isCheckable = true
+            chip.isChecked = option == sortOption
+            chip.setOnClickListener {
+                for (i in 0 until chipGroup.childCount) {
+                    val childChip = chipGroup.getChildAt(i) as? com.google.android.material.chip.Chip ?: continue
+                    childChip.isChecked = childChip == chip
+                }
             }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+            chipGroup.addView(chip)
+        }
+
+        val searchInput = view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.searchInput)
+        val locationInput = view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.locationInput)
+
+        val clearButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.buttonClear)
+        val applyButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.buttonApply)
+
+        clearButton.setOnClickListener {
+            searchInput.text?.clear()
+            locationInput.text?.clear()
+            // Reset selection to default sort
+            for (i in 0 until chipGroup.childCount) {
+                val chip = chipGroup.getChildAt(i) as? com.google.android.material.chip.Chip ?: continue
+                chip.isChecked = chip.text == getString(SpotSortOption.DEFAULT.labelRes)
+            }
+        }
+
+        applyButton.setOnClickListener {
+            var selected = SpotSortOption.DEFAULT
+            for (i in 0 until chipGroup.childCount) {
+                val chip = chipGroup.getChildAt(i) as? com.google.android.material.chip.Chip ?: continue
+                if (chip.isChecked) {
+                    val label = chip.text.toString()
+                    selected = SpotSortOption.OPTIONS.firstOrNull { getString(it.labelRes) == label } ?: SpotSortOption.DEFAULT
+                    break
+                }
+            }
+            spotViewModel.setSortOption(selected)
+            dialog.dismiss()
+        }
+
+        dialog.setContentView(view)
+        dialog.show()
     }
 
     override fun onDestroyView() {
