@@ -88,4 +88,18 @@
     <string name="sort_oldest">Oldest first</string>
     <string name="sort_most_liked">Most liked</string>
     <string name="sort_least_liked">Least liked</string>
+
+    <!-- Feed filters bottom sheet -->
+    <string name="feed_sort_filter_title">Refine feed</string>
+    <string name="feed_search_hint">Search spots</string>
+    <string name="feed_sort_label">Sort by</string>
+    <string name="feed_sort_by_location">Sort by close locations</string>
+    <string name="feed_clear_filters">Reset</string>
+    <string name="feed_apply_filters">Apply</string>
+    <string name="filters">Filters</string>
+    <string name="filter_distance_value_hint">Max distance</string>
+    <string name="filter_distance_unit_hint">Unit (km or m)</string>
+
+    <!-- Google Maps API Key -->
+    <string name="google_maps_key">YOUR_GOOGLE_MAPS_API_KEY_HERE</string>
 </resources>

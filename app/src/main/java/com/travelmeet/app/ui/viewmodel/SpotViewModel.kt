@@ -1,6 +1,7 @@
 package com.travelmeet.app.ui.viewmodel
 
 import android.app.Application
+import android.location.Location
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -44,6 +45,13 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
     private val _likeState = MutableLiveData<Resource<SpotEntity>>()
     val likeState: LiveData<Resource<SpotEntity>> = _likeState
 
+    private var referenceLatitude: Double? = null
+    private var referenceLongitude: Double? = null
+    private var maxDistanceMeters: Double? = null
+    private var lastLocationName: String? = null
+    private var lastDistanceRaw: String? = null
+    private var lastDistanceUnit: String? = null
+
     init {
         val db = AppDatabase.getInstance(application)
         val rtdb = FirebaseDatabase.getInstance("https://travelmeet-9602b-default-rtdb.firebaseio.com/")
@@ -60,11 +68,46 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
         _feedSpots.addSource(allSpots) { spots ->
             latestSpots = spots
             val option = _sortOption.value ?: SpotSortOption.DEFAULT
-            _feedSpots.value = option.sort(spots)
+            _feedSpots.value = applySorting(option, latestSpots)
         }
         _feedSpots.addSource(_sortOption) { option ->
-            _feedSpots.value = option.sort(latestSpots)
+            _feedSpots.value = applySorting(option, latestSpots)
         }
+    }
+
+    private fun applySorting(option: SpotSortOption, spots: List<SpotEntity>): List<SpotEntity> {
+        val refLat = referenceLatitude
+        val refLng = referenceLongitude
+        val maxDist = maxDistanceMeters
+
+        val base = if (refLat != null && refLng != null) {
+            spots
+                .map { spot ->
+                    val distance = distanceBetweenMeters(refLat, refLng, spot.latitude, spot.longitude).toDouble()
+                    spot to distance
+                }
+                .let { listWithDistance ->
+                    val filtered = if (maxDist != null && maxDist > 0) {
+                        listWithDistance.filter { it.second <= maxDist }
+                    } else listWithDistance
+                    filtered.sortedBy { it.second }.map { it.first }
+                }
+        } else {
+            option.sort(spots)
+        }
+
+        return base
+    }
+
+    private fun distanceBetweenMeters(
+        lat1: Double,
+        lng1: Double,
+        lat2: Double,
+        lng2: Double
+    ): Float {
+        val result = FloatArray(1)
+        Location.distanceBetween(lat1, lng1, lat2, lng2, result)
+        return result[0]
     }
 
     fun syncSpots() {
@@ -157,5 +200,32 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
         if (_sortOption.value != option) {
             _sortOption.value = option
         }
+    }
+
+    fun getLastLocationName(): String? = lastLocationName
+    fun getLastDistanceRaw(): String? = lastDistanceRaw
+    fun getLastDistanceUnit(): String? = lastDistanceUnit
+
+    fun setFilters(
+        latitude: Double?,
+        longitude: Double?,
+        maxDistanceMeters: Double?,
+        locationName: String?,
+        rawDistance: String?,
+        distanceUnit: String?
+    ) {
+        referenceLatitude = latitude
+        referenceLongitude = longitude
+        this.maxDistanceMeters = maxDistanceMeters
+        lastLocationName = locationName
+        lastDistanceRaw = rawDistance
+        lastDistanceUnit = distanceUnit
+        val option = _sortOption.value ?: SpotSortOption.DEFAULT
+        _feedSpots.value = applySorting(option, latestSpots)
+    }
+
+    fun setReferenceLocation(latitude: Double?, longitude: Double?, maxDistanceMeters: Double? = null) {
+        // Keep for backwards compatibility where only distance + ref location are set
+        setFilters(latitude, longitude, maxDistanceMeters, lastLocationName, lastDistanceRaw, lastDistanceUnit)
     }
 }
