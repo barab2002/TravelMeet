@@ -130,6 +130,7 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
         binding.tvLikesCount.text = "${spot.likesCount} likes"
         val saveIcon = if (spot.isSavedByCurrentUser) R.drawable.ic_bookmark_filled else R.drawable.ic_bookmark_outline
         binding.ivSaveIcon.setImageResource(saveIcon)
+        binding.tvSaveStatus.visibility = if (spot.isSavedByCurrentUser) View.VISIBLE else View.GONE
         binding.tvLocation.text = spot.locationName ?: String.format(
             "%.4f, %.4f", spot.latitude, spot.longitude
         )
