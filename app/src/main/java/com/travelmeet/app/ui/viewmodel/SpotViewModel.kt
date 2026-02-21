@@ -51,6 +51,7 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
     private var lastLocationName: String? = null
     private var lastDistanceRaw: String? = null
     private var lastDistanceUnit: String? = null
+    private var searchQuery: String? = null
 
     init {
         val db = AppDatabase.getInstance(application)
@@ -79,9 +80,23 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
         val refLat = referenceLatitude
         val refLng = referenceLongitude
         val maxDist = maxDistanceMeters
+        val query = searchQuery?.lowercase()
 
-        val base = if (refLat != null && refLng != null) {
+        // 1) Text filter (Search spots)
+        val filteredByText = if (query != null) {
+            spots.filter { spot ->
+                val title = spot.title.lowercase()
+                val desc = spot.description.lowercase()
+                val loc = spot.locationName?.lowercase() ?: ""
+                title.contains(query) || desc.contains(query) || loc.contains(query)
+            }
+        } else {
             spots
+        }
+
+        // 2) Distance filter + sort
+        val base = if (refLat != null && refLng != null) {
+            filteredByText
                 .map { spot ->
                     val distance = distanceBetweenMeters(refLat, refLng, spot.latitude, spot.longitude).toDouble()
                     spot to distance
@@ -93,7 +108,7 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
                     filtered.sortedBy { it.second }.map { it.first }
                 }
         } else {
-            option.sort(spots)
+            option.sort(filteredByText)
         }
 
         return base
@@ -227,5 +242,13 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
     fun setReferenceLocation(latitude: Double?, longitude: Double?, maxDistanceMeters: Double? = null) {
         // Keep for backwards compatibility where only distance + ref location are set
         setFilters(latitude, longitude, maxDistanceMeters, lastLocationName, lastDistanceRaw, lastDistanceUnit)
+    }
+
+    fun getSearchQuery(): String? = searchQuery
+
+    fun setSearchQuery(query: String?) {
+        searchQuery = query?.takeIf { it.isNotBlank() }
+        val option = _sortOption.value ?: SpotSortOption.DEFAULT
+        _feedSpots.value = applySorting(option, latestSpots)
     }
 }

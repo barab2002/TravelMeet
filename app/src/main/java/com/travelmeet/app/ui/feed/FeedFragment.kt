@@ -210,6 +210,7 @@ class FeedFragment : Fragment() {
         val distanceUnitInput = view.findViewById<com.google.android.material.textfield.MaterialAutoCompleteTextView>(R.id.et_distance_unit)
 
         // Pre-fill from ViewModel if we have previous filters
+        searchInput.setText(spotViewModel.getSearchQuery() ?: "")
         locationInput.setText(spotViewModel.getLastLocationName() ?: "", false)
         distanceValueInput.setText(spotViewModel.getLastDistanceRaw() ?: "")
         val lastUnit = spotViewModel.getLastDistanceUnit()
@@ -235,9 +236,11 @@ class FeedFragment : Fragment() {
             referenceLat = null
             referenceLng = null
             spotViewModel.setFilters(null, null, null, null, null, null)
+            spotViewModel.setSearchQuery(null)
         }
 
         applyButton.setOnClickListener {
+            val searchText = searchInput.text?.toString()?.trim()?.ifEmpty { null }
             val locationText = locationInput.text?.toString()?.trim()?.ifEmpty { null }
             val rawValue = distanceValueInput.text?.toString()?.trim()?.ifEmpty { null }
             val unit = distanceUnitInput.text?.toString()?.trim()?.lowercase()?.ifEmpty { null }
@@ -261,6 +264,7 @@ class FeedFragment : Fragment() {
                 rawDistance = rawValue,
                 distanceUnit = unit
             )
+            spotViewModel.setSearchQuery(searchText)
 
             dialog.dismiss()
         }
