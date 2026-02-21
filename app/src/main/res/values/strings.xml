@@ -36,6 +36,8 @@
 
     <!-- Detail -->
     <string name="spot_detail">Spot Detail</string>
+    <string name="spot_tab_details">Details</string>
+    <string name="spot_tab_comments">Comments</string>
     <string name="edit">EDIT</string>
     <string name="delete">DELETE</string>
     <string name="likes">Likes</string>
@@ -106,4 +108,10 @@
 
     <!-- Google Maps API Key -->
     <string name="google_maps_key">YOUR_GOOGLE_MAPS_API_KEY_HERE</string>
+
+    <!-- Comments -->
+    <string name="add_comment_title">Add a comment</string>
+    <string name="add_comment_hint">Share your thoughts…</string>
+    <string name="submit">Submit</string>
+    <string name="no_comments">Be the first to leave a comment.</string>
 </resources>

@@ -17,7 +17,8 @@ import com.travelmeet.app.util.TimeUtils
 
 class SpotAdapter(
     private val onItemClick: (SpotEntity) -> Unit,
-    private val onLikeClick: (SpotEntity) -> Unit
+    private val onLikeClick: (SpotEntity) -> Unit,
+    private val onCommentClick: (SpotEntity) -> Unit
 ) : ListAdapter<SpotEntity, SpotAdapter.SpotViewHolder>(SpotDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SpotViewHolder {
@@ -46,6 +47,12 @@ class SpotAdapter(
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onLikeClick(getItem(position))
+                }
+            }
+            binding.ivComment.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onCommentClick(getItem(position))
                 }
             }
         }

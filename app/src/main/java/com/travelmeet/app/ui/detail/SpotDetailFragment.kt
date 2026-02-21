@@ -12,6 +12,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -20,6 +21,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.tabs.TabLayout
 import com.squareup.picasso.Picasso
 import com.travelmeet.app.R
 import com.travelmeet.app.data.local.entity.SpotEntity
@@ -41,6 +43,7 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
     private val weatherViewModel: WeatherViewModel by viewModels()
     private var googleMap: GoogleMap? = null
     private var currentSpot: SpotEntity? = null
+    private lateinit var commentsAdapter: CommentsAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,6 +57,8 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupClickListeners()
+        setupTabs()
+        setupCommentsSection()
         setupMap()
         observeSpot()
         observeWeather()
@@ -218,6 +223,56 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
+    private fun setupTabs() {
+        binding.spotTabs.apply {
+            removeAllTabs()
+            addTab(newTab().setText(R.string.spot_tab_details))
+            addTab(newTab().setText(R.string.spot_tab_comments))
+            getTabAt(0)?.select()
+        }
+        showDetailsTab()
+        binding.spotTabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                if (tab.position == 0) showDetailsTab() else showCommentsTab()
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+
+            override fun onTabReselected(tab: TabLayout.Tab) {
+                if (tab.position == 1 && ::commentsAdapter.isInitialized) {
+                    binding.rvComments.smoothScrollToPosition(0)
+                }
+            }
+        })
+    }
+
+    private fun showDetailsTab() {
+        binding.detailsContainer.visibility = View.VISIBLE
+        binding.commentsContainer.visibility = View.GONE
+    }
+
+    private fun showCommentsTab() {
+        binding.detailsContainer.visibility = View.GONE
+        binding.commentsContainer.visibility = View.VISIBLE
+    }
+
+    private fun setupCommentsSection() {
+        commentsAdapter = CommentsAdapter()
+        binding.rvComments.apply {
+            adapter = commentsAdapter
+            layoutManager = LinearLayoutManager(requireContext())
+            visibility = View.GONE
+        }
+        binding.commentsProgress.visibility = View.VISIBLE
+        spotViewModel.observeComments(args.spotId).observe(viewLifecycleOwner) { comments ->
+            binding.commentsProgress.visibility = View.GONE
+            val hasComments = comments.isNotEmpty()
+            binding.rvComments.visibility = if (hasComments) View.VISIBLE else View.GONE
+            binding.tvCommentsEmpty.visibility = if (hasComments) View.GONE else View.VISIBLE
+            commentsAdapter.submitList(comments)
+        }
+    }
+
     private fun setupDots(container: LinearLayout, count: Int, activeIndex: Int) {
         container.removeAllViews()
         for (i in 0 until count) {
@@ -258,6 +313,7 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        spotViewModel.stopObservingComments(args.spotId)
         _binding = null
     }
 }

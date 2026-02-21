@@ -8,6 +8,7 @@ object Constants {
     // Firestore collection names
     const val COLLECTION_USERS = "users"
     const val COLLECTION_SPOTS = "spots"
+    const val NODE_COMMENTS = "comments"
 
     // Image compression
     const val MAX_IMAGE_SIZE_KB = 500
