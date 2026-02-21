@@ -1,14 +1,23 @@
 package com.travelmeet.app.ui.feed
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.AutocompletePrediction
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.net.FetchPlaceRequest
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
+import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.travelmeet.app.R
 import com.travelmeet.app.databinding.FragmentFeedBinding
@@ -21,6 +30,12 @@ class FeedFragment : Fragment() {
     private val binding get() = _binding!!
     private val spotViewModel: SpotViewModel by activityViewModels()
     private lateinit var spotAdapter: SpotAdapter
+
+    private lateinit var placesClient: PlacesClient
+    private val locationPredictions = mutableListOf<AutocompletePrediction>()
+    private var locationPlaceSelected: Boolean = false
+    private var referenceLat: Double? = null
+    private var referenceLng: Double? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,6 +52,12 @@ class FeedFragment : Fragment() {
         setupSwipeRefresh()
         setupToolbar()
         observeSpots()
+
+        // Initialize Places client once per fragment lifecycle
+        if (!Places.isInitialized()) {
+            Places.initialize(requireContext(), getString(R.string.google_maps_key))
+        }
+        placesClient = Places.createClient(requireContext())
 
         // Initial sync
         spotViewModel.syncSpots()
@@ -114,7 +135,6 @@ class FeedFragment : Fragment() {
         }
     }
 
-    // New nicer UI: bottom sheet with sort + search + location placeholders
     private fun showSortFilterSheet() {
         val dialog = BottomSheetDialog(requireContext())
         val view = layoutInflater.inflate(R.layout.bottom_sheet_sort_filter, null)
@@ -138,7 +158,9 @@ class FeedFragment : Fragment() {
         }
 
         val searchInput = view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.searchInput)
-        val locationInput = view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.locationInput)
+        val locationInput = view.findViewById<com.google.android.material.textfield.MaterialAutoCompleteTextView>(R.id.et_sort_location)
+
+        setupLocationAutocomplete(locationInput)
 
         val clearButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.buttonClear)
         val applyButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.buttonApply)
@@ -146,6 +168,10 @@ class FeedFragment : Fragment() {
         clearButton.setOnClickListener {
             searchInput.text?.clear()
             locationInput.text?.clear()
+            locationPlaceSelected = false
+            referenceLat = null
+            referenceLng = null
+            spotViewModel.setReferenceLocation(null, null)
             // Reset selection to default sort
             for (i in 0 until chipGroup.childCount) {
                 val chip = chipGroup.getChildAt(i) as? com.google.android.material.chip.Chip ?: continue
@@ -164,11 +190,64 @@ class FeedFragment : Fragment() {
                 }
             }
             spotViewModel.setSortOption(selected)
+            spotViewModel.setReferenceLocation(referenceLat, referenceLng)
             dialog.dismiss()
         }
 
         dialog.setContentView(view)
         dialog.show()
+    }
+
+    private fun setupLocationAutocomplete(autoComplete: com.google.android.material.textfield.MaterialAutoCompleteTextView) {
+        val adapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line)
+        autoComplete.setAdapter(adapter)
+
+        autoComplete.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                val query = s?.toString()?.trim() ?: return
+                if (query.length < 2 || locationPlaceSelected) {
+                    locationPlaceSelected = false
+                    return
+                }
+
+                val request = FindAutocompletePredictionsRequest.builder()
+                    .setQuery(query)
+                    .build()
+
+                placesClient.findAutocompletePredictions(request)
+                    .addOnSuccessListener { response ->
+                        locationPredictions.clear()
+                        locationPredictions.addAll(response.autocompletePredictions)
+                        adapter.clear()
+                        adapter.addAll(locationPredictions.map { it.getFullText(null).toString() })
+                        adapter.notifyDataSetChanged()
+                        if (locationPredictions.isNotEmpty() && autoComplete.isAttachedToWindow) {
+                            autoComplete.showDropDown()
+                        }
+                    }
+            }
+        })
+
+        autoComplete.setOnItemClickListener { _, _, position, _ ->
+            if (position >= locationPredictions.size) return@setOnItemClickListener
+            val prediction = locationPredictions[position]
+            locationPlaceSelected = true
+
+            val placeFields = listOf(Place.Field.LAT_LNG, Place.Field.NAME)
+            val fetchRequest = FetchPlaceRequest.newInstance(prediction.placeId, placeFields)
+
+            placesClient.fetchPlace(fetchRequest)
+                .addOnSuccessListener { fetchResponse ->
+                    val place = fetchResponse.place
+                    val latLng = place.latLng
+                    if (latLng != null) {
+                        referenceLat = latLng.latitude
+                        referenceLng = latLng.longitude
+                    }
+                }
+        }
     }
 
     override fun onDestroyView() {

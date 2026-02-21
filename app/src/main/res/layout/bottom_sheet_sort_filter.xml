@@ -54,15 +54,20 @@
                 app:singleSelection="true" />
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_sort_by_location"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
+                android:layout_height="56dp"
+                android:layout_marginTop="16dp"
+                android:hint="@string/feed_sort_by_location">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/locationInput"
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/et_sort_location"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/feed_location_hint" />
+                    android:layout_height="match_parent"
+                    android:completionThreshold="2"
+                    android:inputType="textCapSentences"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
@@ -73,11 +78,11 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonClear"
-                    android:backgroundTint="@color/quantum_grey"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/feed_clear_filters" />
+                    android:text="@string/feed_clear_filters"
+                    android:textSize="14sp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonApply"
@@ -85,7 +90,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:layout_weight="1"
-                    android:text="@string/feed_apply_filters" />
+                    android:text="@string/feed_apply_filters"
+                    android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

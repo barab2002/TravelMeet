@@ -9,6 +9,10 @@ import com.google.android.material.chip.Chip
 import com.travelmeet.app.R
 import com.travelmeet.app.databinding.BottomSheetSortFilterBinding
 
+// This file is no longer used. The feed sort/filter UI is now implemented
+// directly via a BottomSheetDialog in FeedFragment to avoid DialogFragment
+// attachment issues.
+
 class SortFilterBottomSheet : BottomSheetDialogFragment() {
 
     private var _binding: BottomSheetSortFilterBinding? = null
@@ -42,14 +46,14 @@ class SortFilterBottomSheet : BottomSheetDialogFragment() {
 
         binding.buttonApply.setOnClickListener {
             val search = binding.searchInput.text?.toString()?.trim().orEmpty()
-            val location = binding.locationInput.text?.toString()?.trim()?.ifEmpty { null }
+            val location = binding.etSortLocation.text?.toString()?.trim()?.ifEmpty { null }
             onApply?.invoke(selectedSort, search, location)
             dismiss()
         }
 
         binding.buttonClear.setOnClickListener {
             binding.searchInput.text?.clear()
-            binding.locationInput.text?.clear()
+            binding.etSortLocation.text?.clear()
             selectedSort = SpotSortOption.DEFAULT
             updateChipSelection()
         }
@@ -100,4 +104,3 @@ class SortFilterBottomSheet : BottomSheetDialogFragment() {
         }
     }
 }
-
