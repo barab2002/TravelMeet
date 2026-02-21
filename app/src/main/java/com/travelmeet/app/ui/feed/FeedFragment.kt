@@ -26,6 +26,8 @@ import com.travelmeet.app.databinding.FragmentFeedBinding
 import com.travelmeet.app.ui.viewmodel.SpotViewModel
 import com.travelmeet.app.util.PlacesProvider
 import com.travelmeet.app.util.Resource
+import com.squareup.picasso.Callback
+import com.squareup.picasso.Picasso
 
 class FeedFragment : Fragment() {
 
@@ -43,6 +45,11 @@ class FeedFragment : Fragment() {
     private var commentDialog: androidx.appcompat.app.AlertDialog? = null
     private var commentInput: com.google.android.material.textfield.TextInputEditText? = null
     private var pendingCommentSpotId: String? = null
+    private var hasDeliveredInitialFeed = false
+    private var hasCompletedInitialSync = false
+    private var shouldResetOnResume = false
+    private var shouldPrefetchAvatarsBeforeReveal = true
+    private var avatarPrefetchInProgress = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,6 +62,7 @@ class FeedFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        showFeedOverlayAndResetState()
         setupRecyclerView()
         setupSwipeRefresh()
         setupToolbar()
@@ -66,6 +74,20 @@ class FeedFragment : Fragment() {
 
         // Initial sync
         spotViewModel.syncSpots()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (shouldResetOnResume) {
+            showFeedOverlayAndResetState()
+            spotViewModel.syncSpots()
+            shouldResetOnResume = false
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        shouldResetOnResume = true
     }
 
     private fun setupRecyclerView() {
@@ -103,6 +125,12 @@ class FeedFragment : Fragment() {
             spotAdapter.submitList(spots)
             binding.emptyState.visibility = if (spots.isEmpty()) View.VISIBLE else View.GONE
             binding.rvSpots.visibility = if (spots.isEmpty()) View.GONE else View.VISIBLE
+            if (shouldPrefetchAvatarsBeforeReveal) {
+                startAvatarPrefetch(spots)
+            } else {
+                hasDeliveredInitialFeed = true
+                hideInitialOverlayIfReady()
+            }
         }
 
         // Observe sync state
@@ -118,6 +146,8 @@ class FeedFragment : Fragment() {
                     binding.progressBar.cancelAnimation()
                     binding.progressBar.visibility = View.GONE
                     binding.swipeRefresh.isRefreshing = false
+                    hasCompletedInitialSync = true
+                    hideInitialOverlayIfReady()
                 }
                 is Resource.Error -> {
                     binding.progressBar.cancelAnimation()
@@ -128,9 +158,28 @@ class FeedFragment : Fragment() {
                         resource.message ?: getString(R.string.no_internet),
                         Toast.LENGTH_SHORT
                     ).show()
+                    hasCompletedInitialSync = true
+                    hideInitialOverlayIfReady()
                 }
             }
         }
+    }
+
+    private fun hideInitialOverlayIfReady() {
+        if (hasDeliveredInitialFeed && hasCompletedInitialSync) {
+            binding.feedInitialProgressBar.cancelAnimation()
+            binding.feedInitialOverlay.visibility = View.GONE
+        }
+    }
+
+    private fun showFeedOverlayAndResetState() {
+        hasDeliveredInitialFeed = false
+        hasCompletedInitialSync = false
+        shouldPrefetchAvatarsBeforeReveal = true
+        avatarPrefetchInProgress = false
+        binding.feedInitialOverlay.bringToFront()
+        binding.feedInitialOverlay.visibility = View.VISIBLE
+        binding.feedInitialProgressBar.playAnimation()
     }
 
     private fun observeCommentState() {
@@ -430,6 +479,47 @@ class FeedFragment : Fragment() {
 
         dialog.show()
         commentDialog = dialog
+    }
+
+    private fun startAvatarPrefetch(spots: List<SpotEntity>) {
+        if (!shouldPrefetchAvatarsBeforeReveal) {
+            hasDeliveredInitialFeed = true
+            hideInitialOverlayIfReady()
+            return
+        }
+
+        if (avatarPrefetchInProgress) return
+
+        val urls = spots.mapNotNull { it.userPhotoUrl?.takeIf { url -> url.isNotBlank() } }.toSet()
+        if (urls.isEmpty()) {
+            shouldPrefetchAvatarsBeforeReveal = false
+            hasDeliveredInitialFeed = true
+            hideInitialOverlayIfReady()
+            return
+        }
+
+        avatarPrefetchInProgress = true
+        var remaining = urls.size
+
+        fun handleOneFinished() {
+            remaining--
+            if (remaining <= 0) {
+                _binding?.root?.post {
+                    avatarPrefetchInProgress = false
+                    shouldPrefetchAvatarsBeforeReveal = false
+                    hasDeliveredInitialFeed = true
+                    hideInitialOverlayIfReady()
+                }
+            }
+        }
+
+        val picasso = Picasso.get()
+        urls.forEach { url ->
+            picasso.load(url).fetch(object : Callback {
+                override fun onSuccess() = handleOneFinished()
+                override fun onError(e: Exception?) = handleOneFinished()
+            })
+        }
     }
 
     override fun onDestroyView() {

@@ -44,6 +44,8 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
     private var googleMap: GoogleMap? = null
     private var currentSpot: SpotEntity? = null
     private lateinit var commentsAdapter: CommentsAdapter
+    private var hasBoundSpot = false
+    private var hasCompletedWeatherFetch = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -56,6 +58,10 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.initialLoadingOverlay.visibility = View.VISIBLE
+        binding.initialProgressBar.playAnimation()
+        hasBoundSpot = false
+        hasCompletedWeatherFetch = false
         setupClickListeners()
         setupTabs()
         setupCommentsSection()
@@ -128,6 +134,8 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
         binding.tvUsername.text = spot.username
         binding.tvTimestamp.text = TimeUtils.getRelativeTimeString(spot.timestamp)
         binding.tvLikesCount.text = "${spot.likesCount} likes"
+        val likeIcon = if (spot.isLikedByCurrentUser) R.drawable.ic_like_filled else R.drawable.ic_like_outline
+        binding.ivLikeIcon.setImageResource(likeIcon)
         val saveIcon = if (spot.isSavedByCurrentUser) R.drawable.ic_bookmark_filled else R.drawable.ic_bookmark_outline
         binding.ivSaveIcon.setImageResource(saveIcon)
         binding.tvSaveStatus.visibility = if (spot.isSavedByCurrentUser) View.VISIBLE else View.GONE
@@ -157,7 +165,14 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
         }
 
         if (!spot.userPhotoUrl.isNullOrEmpty()) {
-            Picasso.get().load(spot.userPhotoUrl).into(binding.ivUserAvatar)
+            val currentTag = binding.ivUserAvatar.tag as? String
+            if (currentTag != spot.userPhotoUrl) {
+                binding.ivUserAvatar.tag = spot.userPhotoUrl
+                Picasso.get().load(spot.userPhotoUrl).noFade().into(binding.ivUserAvatar)
+            }
+        } else if (binding.ivUserAvatar.tag != null) {
+            binding.ivUserAvatar.tag = null
+            binding.ivUserAvatar.setImageResource(R.drawable.ic_profile)
         }
 
         // Show owner actions
@@ -175,6 +190,9 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
             map.addMarker(MarkerOptions().position(location).title(spot.title))
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 14f))
         }
+
+        hasBoundSpot = true
+        hideInitialOverlayIfReady()
     }
 
     private fun observeWeather() {
@@ -197,14 +215,25 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
                         binding.tvWeatherWind.text =
                             getString(R.string.wind_speed, current.windSpeed)
                     }
+                    hasCompletedWeatherFetch = true
+                    hideInitialOverlayIfReady()
                 }
                 is Resource.Error -> {
                     binding.weatherProgress.cancelAnimation()
                     binding.weatherProgress.visibility = View.GONE
                     binding.tvWeatherTemp.text = "N/A"
                     binding.tvTemperature.text = "--"
+                    hasCompletedWeatherFetch = true
+                    hideInitialOverlayIfReady()
                 }
             }
+        }
+    }
+
+    private fun hideInitialOverlayIfReady() {
+        if (hasBoundSpot && hasCompletedWeatherFetch) {
+            binding.initialProgressBar.cancelAnimation()
+            binding.initialLoadingOverlay.visibility = View.GONE
         }
     }
 
@@ -324,6 +353,8 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
     override fun onDestroyView() {
         super.onDestroyView()
         spotViewModel.stopObservingComments(args.spotId)
+        hasBoundSpot = false
+        hasCompletedWeatherFetch = false
         _binding = null
     }
 }
