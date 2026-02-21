@@ -26,7 +26,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
@@ -35,6 +34,7 @@ import com.google.android.libraries.places.api.net.PlacesClient
 import com.travelmeet.app.R
 import com.travelmeet.app.databinding.FragmentAddSpotBinding
 import com.travelmeet.app.ui.viewmodel.SpotViewModel
+import com.travelmeet.app.util.PlacesProvider
 import com.travelmeet.app.util.Resource
 import java.io.File
 import java.io.IOException
@@ -109,7 +109,7 @@ class AddSpotFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
-        placesClient = Places.createClient(requireContext())
+        placesClient = PlacesProvider.getClient(requireContext())
         setupRecyclerView()
         setupClickListeners()
         setupPlacesAutocomplete()
@@ -254,6 +254,7 @@ class AddSpotFragment : Fragment() {
     private fun fetchLocation() {
         try {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                val binding = _binding ?: return@addOnSuccessListener
                 if (location != null) {
                     currentLatitude = location.latitude
                     currentLongitude = location.longitude
@@ -266,15 +267,19 @@ class AddSpotFragment : Fragment() {
                         ?: String.format("%.6f, %.6f", currentLatitude, currentLongitude)
                     binding.tvLocationLabel.text = getString(R.string.current_location)
                 } else {
-                    Toast.makeText(
-                        requireContext(),
-                        "Could not get location. Try again.",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    if (view != null) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Could not get location. Try again.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
         } catch (e: SecurityException) {
-            Toast.makeText(requireContext(), R.string.location_permission_rationale, Toast.LENGTH_SHORT).show()
+            if (view != null) {
+                Toast.makeText(requireContext(), R.string.location_permission_rationale, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -422,6 +427,7 @@ class AddSpotFragment : Fragment() {
 
     private fun observeAddSpotState() {
         spotViewModel.addSpotState.observe(viewLifecycleOwner) { resource ->
+            resource ?: return@observe
             when (resource) {
                 is Resource.Loading -> {
                     showLoading(getString(R.string.uploading))
@@ -429,6 +435,7 @@ class AddSpotFragment : Fragment() {
                 is Resource.Success -> {
                     hideLoading()
                     Toast.makeText(requireContext(), "Spot added successfully!", Toast.LENGTH_SHORT).show()
+                    spotViewModel.resetAddSpotState()
                     findNavController().navigate(
                         R.id.feedFragment,
                         null,
@@ -440,6 +447,7 @@ class AddSpotFragment : Fragment() {
                 is Resource.Error -> {
                     hideLoading()
                     Toast.makeText(requireContext(), resource.message, Toast.LENGTH_LONG).show()
+                    spotViewModel.resetAddSpotState()
                 }
             }
         }
@@ -447,6 +455,7 @@ class AddSpotFragment : Fragment() {
 
     private fun observeUpdateSpotState() {
         spotViewModel.updateSpotState.observe(viewLifecycleOwner) { resource ->
+            resource ?: return@observe
             when (resource) {
                 is Resource.Loading -> {
                     showLoading(getString(R.string.uploading))
@@ -454,11 +463,13 @@ class AddSpotFragment : Fragment() {
                 is Resource.Success -> {
                     hideLoading()
                     Toast.makeText(requireContext(), "Spot updated!", Toast.LENGTH_SHORT).show()
+                    spotViewModel.resetUpdateSpotState()
                     findNavController().navigateUp()
                 }
                 is Resource.Error -> {
                     hideLoading()
                     Toast.makeText(requireContext(), resource.message, Toast.LENGTH_LONG).show()
+                    spotViewModel.resetUpdateSpotState()
                 }
             }
         }

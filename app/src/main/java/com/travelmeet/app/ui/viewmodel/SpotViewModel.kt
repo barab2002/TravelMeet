@@ -251,4 +251,12 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
         val option = _sortOption.value ?: SpotSortOption.DEFAULT
         _feedSpots.value = applySorting(option, latestSpots)
     }
+
+    fun resetAddSpotState() {
+        _addSpotState.value = null
+    }
+
+    fun resetUpdateSpotState() {
+        _updateSpotState.value = null
+    }
 }
