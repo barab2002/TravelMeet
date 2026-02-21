@@ -96,6 +96,9 @@
     <string name="feed_sort_by_location">Sort by close locations</string>
     <string name="feed_clear_filters">Reset</string>
     <string name="feed_apply_filters">Apply</string>
+    <string name="filters">Filters</string>
+    <string name="filter_distance_value_hint">Max distance</string>
+    <string name="filter_distance_unit_hint">Unit (km or m)</string>
 
     <!-- Google Maps API Key -->
     <string name="google_maps_key">YOUR_GOOGLE_MAPS_API_KEY_HERE</string>

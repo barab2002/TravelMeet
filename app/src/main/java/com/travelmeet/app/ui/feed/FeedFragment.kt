@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -127,7 +128,11 @@ class FeedFragment : Fragment() {
         binding.toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_sort -> {
-                    showSortFilterSheet()
+                    showSortSheet()
+                    true
+                }
+                R.id.action_filter -> {
+                    showFilterSheet()
                     true
                 }
                 else -> false
@@ -135,9 +140,9 @@ class FeedFragment : Fragment() {
         }
     }
 
-    private fun showSortFilterSheet() {
+    private fun showSortSheet() {
         val dialog = BottomSheetDialog(requireContext())
-        val view = layoutInflater.inflate(R.layout.bottom_sheet_sort_filter, null)
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_sort_filter, binding.root as ViewGroup, false)
 
         val sortOption = spotViewModel.sortOption.value ?: SpotSortOption.DEFAULT
 
@@ -157,26 +162,16 @@ class FeedFragment : Fragment() {
             chipGroup.addView(chip)
         }
 
-        val searchInput = view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.searchInput)
-        val locationInput = view.findViewById<com.google.android.material.textfield.MaterialAutoCompleteTextView>(R.id.et_sort_location)
-
-        setupLocationAutocomplete(locationInput)
-
         val clearButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.buttonClear)
         val applyButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.buttonApply)
 
         clearButton.setOnClickListener {
-            searchInput.text?.clear()
-            locationInput.text?.clear()
-            locationPlaceSelected = false
-            referenceLat = null
-            referenceLng = null
-            spotViewModel.setReferenceLocation(null, null)
             // Reset selection to default sort
             for (i in 0 until chipGroup.childCount) {
                 val chip = chipGroup.getChildAt(i) as? com.google.android.material.chip.Chip ?: continue
                 chip.isChecked = chip.text == getString(SpotSortOption.DEFAULT.labelRes)
             }
+            spotViewModel.setSortOption(SpotSortOption.DEFAULT)
         }
 
         applyButton.setOnClickListener {
@@ -190,7 +185,67 @@ class FeedFragment : Fragment() {
                 }
             }
             spotViewModel.setSortOption(selected)
-            spotViewModel.setReferenceLocation(referenceLat, referenceLng)
+            dialog.dismiss()
+        }
+
+        // Hide search and location views for pure sort sheet
+        view.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.searchInputLayout)?.visibility = View.GONE
+        view.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.til_filter_by_location)?.visibility = View.GONE
+        view.findViewById<LinearLayout>(R.id.distanceLimitRow)?.visibility = View.GONE
+
+        dialog.setContentView(view)
+        dialog.show()
+    }
+
+    private fun showFilterSheet() {
+        val dialog = BottomSheetDialog(requireContext())
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_sort_filter, binding.root as ViewGroup, false)
+
+        // Hide sort chips for filter sheet
+        view.findViewById<com.google.android.material.chip.ChipGroup>(R.id.sortChipGroup).visibility = View.GONE
+
+        val searchInput = view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.searchInput)
+        val locationInput = view.findViewById<com.google.android.material.textfield.MaterialAutoCompleteTextView>(R.id.et_filter_location)
+        val distanceValueInput = view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_distance_value)
+        val distanceUnitInput = view.findViewById<com.google.android.material.textfield.MaterialAutoCompleteTextView>(R.id.et_distance_unit)
+
+        // Simple km/m unit suggestions
+        val unitAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, listOf("km", "m"))
+        distanceUnitInput.setAdapter(unitAdapter)
+
+        setupLocationAutocomplete(locationInput)
+
+        val clearButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.buttonClear)
+        val applyButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.buttonApply)
+
+        clearButton.setOnClickListener {
+            searchInput.text?.clear()
+            locationInput.text?.clear()
+            distanceValueInput.text?.clear()
+            distanceUnitInput.text?.clear()
+            locationPlaceSelected = false
+            referenceLat = null
+            referenceLng = null
+            spotViewModel.setReferenceLocation(null, null)
+            // TODO: Clear text-based filters and distance limit in ViewModel when added
+        }
+
+        applyButton.setOnClickListener {
+            val rawValue = distanceValueInput.text?.toString()?.trim()
+            val unit = distanceUnitInput.text?.toString()?.trim()?.lowercase()
+            val maxDistanceMeters = if (!rawValue.isNullOrEmpty()) {
+                val numeric = rawValue.toDoubleOrNull()
+                if (numeric != null && numeric > 0) {
+                    when (unit) {
+                        "km" -> numeric * 1000.0
+                        "m" -> numeric
+                        else -> numeric * 1000.0
+                    }
+                } else null
+            } else null
+
+            // Store reference location and let ViewModel sort/filter locally by distance
+            spotViewModel.setReferenceLocation(referenceLat, referenceLng, maxDistanceMeters)
             dialog.dismiss()
         }
 

@@ -47,6 +47,7 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
 
     private var referenceLatitude: Double? = null
     private var referenceLongitude: Double? = null
+    private var maxDistanceMeters: Double? = null
 
     init {
         val db = AppDatabase.getInstance(application)
@@ -74,14 +75,25 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
     private fun applySorting(option: SpotSortOption, spots: List<SpotEntity>): List<SpotEntity> {
         val refLat = referenceLatitude
         val refLng = referenceLongitude
-        return if (refLat != null && refLng != null) {
-            // Sort by distance to reference point (nearest first)
-            spots.sortedBy { spot ->
-                distanceBetweenMeters(refLat, refLng, spot.latitude, spot.longitude)
-            }
+        val maxDist = maxDistanceMeters
+
+        val base = if (refLat != null && refLng != null) {
+            spots
+                .map { spot ->
+                    val distance = distanceBetweenMeters(refLat, refLng, spot.latitude, spot.longitude).toDouble()
+                    spot to distance
+                }
+                .let { listWithDistance ->
+                    val filtered = if (maxDist != null && maxDist > 0) {
+                        listWithDistance.filter { it.second <= maxDist }
+                    } else listWithDistance
+                    filtered.sortedBy { it.second }.map { it.first }
+                }
         } else {
             option.sort(spots)
         }
+
+        return base
     }
 
     private fun distanceBetweenMeters(
@@ -187,10 +199,10 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun setReferenceLocation(latitude: Double?, longitude: Double?) {
+    fun setReferenceLocation(latitude: Double?, longitude: Double?, maxDistanceMeters: Double? = null) {
         referenceLatitude = latitude
         referenceLongitude = longitude
-        // Re-emit with current sort option
+        this.maxDistanceMeters = maxDistanceMeters
         val option = _sortOption.value ?: SpotSortOption.DEFAULT
         _feedSpots.value = applySorting(option, latestSpots)
     }

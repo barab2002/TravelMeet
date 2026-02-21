@@ -27,6 +27,7 @@
                 android:text="@string/feed_sort_filter_title" />
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/searchInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp">
@@ -54,14 +55,14 @@
                 app:singleSelection="true" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_sort_by_location"
+                android:id="@+id/til_filter_by_location"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="16dp"
                 android:hint="@string/feed_sort_by_location">
 
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                    android:id="@+id/et_sort_location"
+                    android:id="@+id/et_filter_location"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:completionThreshold="2"
@@ -69,6 +70,46 @@
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:id="@+id/distanceLimitRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_distance_value"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/filter_distance_value_hint">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_distance_value"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:maxLength="4" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_distance_unit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:hint="@string/filter_distance_unit_hint">
+
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/et_distance_unit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:completionThreshold="1" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"

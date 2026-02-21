@@ -18,10 +18,9 @@ class SortFilterBottomSheet : BottomSheetDialogFragment() {
     private var _binding: BottomSheetSortFilterBinding? = null
     private val binding get() = _binding!!
 
-    // For now we only keep sort; search/location are text fields, future-proof for more
     private var selectedSort: SpotSortOption = SpotSortOption.DEFAULT
 
-    var onApply: ((SpotSortOption, String, String?) -> Unit)? = null
+    var onApply: ((SpotSortOption) -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,15 +44,11 @@ class SortFilterBottomSheet : BottomSheetDialogFragment() {
         setupSortChips()
 
         binding.buttonApply.setOnClickListener {
-            val search = binding.searchInput.text?.toString()?.trim().orEmpty()
-            val location = binding.etSortLocation.text?.toString()?.trim()?.ifEmpty { null }
-            onApply?.invoke(selectedSort, search, location)
+            onApply?.invoke(selectedSort)
             dismiss()
         }
 
         binding.buttonClear.setOnClickListener {
-            binding.searchInput.text?.clear()
-            binding.etSortLocation.text?.clear()
             selectedSort = SpotSortOption.DEFAULT
             updateChipSelection()
         }
