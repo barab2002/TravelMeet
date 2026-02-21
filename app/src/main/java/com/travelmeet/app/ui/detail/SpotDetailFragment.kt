@@ -74,6 +74,10 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
             spotViewModel.toggleLike(args.spotId)
         }
 
+        binding.saveContainer.setOnClickListener {
+            spotViewModel.toggleSave(args.spotId)
+        }
+
         binding.btnEdit.setOnClickListener {
             val action = SpotDetailFragmentDirections
                 .actionSpotDetailFragmentToAddSpotFragment(args.spotId)
@@ -124,6 +128,8 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
         binding.tvUsername.text = spot.username
         binding.tvTimestamp.text = TimeUtils.getRelativeTimeString(spot.timestamp)
         binding.tvLikesCount.text = "${spot.likesCount} likes"
+        val saveIcon = if (spot.isSavedByCurrentUser) R.drawable.ic_bookmark_filled else R.drawable.ic_bookmark_outline
+        binding.ivSaveIcon.setImageResource(saveIcon)
         binding.tvLocation.text = spot.locationName ?: String.format(
             "%.4f, %.4f", spot.latitude, spot.longitude
         )
