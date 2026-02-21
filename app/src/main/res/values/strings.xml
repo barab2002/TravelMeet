@@ -36,6 +36,8 @@
 
     <!-- Detail -->
     <string name="spot_detail">Spot Detail</string>
+    <string name="spot_tab_details">Details</string>
+    <string name="spot_tab_comments">Comments</string>
     <string name="edit">EDIT</string>
     <string name="delete">DELETE</string>
     <string name="likes">Likes</string>
