@@ -26,6 +26,7 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
     val allSpots: LiveData<List<SpotEntity>>
     private val _feedSpots = MediatorLiveData<List<SpotEntity>>()
     val feedSpots: LiveData<List<SpotEntity>> = _feedSpots
+    val savedSpots: LiveData<List<SpotEntity>>
 
     private val _sortOption = MutableLiveData(SpotSortOption.DEFAULT)
     val sortOption: LiveData<SpotSortOption> = _sortOption
@@ -45,6 +46,9 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _likeState = MutableLiveData<Resource<SpotEntity>>()
     val likeState: LiveData<Resource<SpotEntity>> = _likeState
+
+    private val _saveState = MutableLiveData<Resource<SpotEntity>?>()
+    val saveState: LiveData<Resource<SpotEntity>?> = _saveState
 
     private val _commentState = MutableLiveData<Resource<Unit>?>()
     val commentState: LiveData<Resource<Unit>?> = _commentState
@@ -71,6 +75,7 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
             application.applicationContext
         )
         allSpots = repository.getAllSpots()
+        savedSpots = repository.getSavedSpots()
         repository.startRealtimeSync()
 
         _feedSpots.addSource(allSpots) { spots ->
@@ -220,6 +225,16 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun toggleSave(spotId: String) {
+        viewModelScope.launch {
+            try {
+                _saveState.postValue(repository.toggleSave(spotId))
+            } catch (e: Exception) {
+                _saveState.postValue(Resource.Error(e.message ?: "Failed to toggle save"))
+            }
+        }
+    }
+
     fun setSortOption(option: SpotSortOption) {
         if (_sortOption.value != option) {
             _sortOption.value = option
@@ -271,6 +286,10 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
 
     fun resetDeleteSpotState() {
         _deleteSpotState.value = null
+    }
+
+    fun resetSaveState() {
+        _saveState.value = null
     }
 
     fun observeComments(spotId: String): LiveData<List<SpotComment>> {

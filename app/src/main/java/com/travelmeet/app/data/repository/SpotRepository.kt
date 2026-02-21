@@ -86,6 +86,9 @@ class SpotRepository(
     fun getSpotsByUser(userId: String): LiveData<List<SpotEntity>> =
         spotDao.getSpotsByUser(userId)
 
+    fun getSavedSpots(): LiveData<List<SpotEntity>> =
+        spotDao.getSavedSpots()
+
     fun getSpotById(spotId: String): LiveData<SpotEntity?> =
         spotDao.getSpotById(spotId)
 
@@ -165,7 +168,8 @@ class SpotRepository(
                     "locationName" to locationName,
                     "timestamp" to timestamp,
                     "likesCount" to 0,
-                    "likedBy" to HashMap<String, Boolean>()
+                    "likedBy" to HashMap<String, Boolean>(),
+                    "savedBy" to HashMap<String, Boolean>()
                 )
 
                 Log.d(TAG, "Writing spot to Realtime Database...")
@@ -344,6 +348,40 @@ class SpotRepository(
         }
     }
 
+    suspend fun toggleSave(spotId: String): Resource<SpotEntity> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val user = auth.currentUser ?: return@withContext Resource.Error("Not authenticated")
+                val spot = spotDao.getSpotByIdSync(spotId)
+                    ?: return@withContext Resource.Error("Spot not found")
+
+                val spotRef = spotsRef.child(spotId)
+                val snapshot = spotRef.get().await()
+
+                val savedByMap = mutableMapOf<String, Boolean>()
+                snapshot.child("savedBy").children.forEach { child ->
+                    child.key?.let { savedByMap[it] = true }
+                }
+
+                val isCurrentlySaved = savedByMap.containsKey(user.uid)
+                if (isCurrentlySaved) {
+                    savedByMap.remove(user.uid)
+                } else {
+                    savedByMap[user.uid] = true
+                }
+
+                spotRef.child("savedBy").setValue(savedByMap).await()
+
+                val updatedSpot = spot.copy(isSavedByCurrentUser = !isCurrentlySaved)
+                spotDao.updateSpot(updatedSpot)
+                Resource.Success(updatedSpot)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to toggle save: ${e.message}", e)
+                Resource.Error(e.message ?: "Failed to toggle save")
+            }
+        }
+    }
+
     fun observeComments(spotId: String, onUpdate: (List<SpotComment>) -> Unit) {
         val commentsRef = spotsRef.child(spotId).child(Constants.NODE_COMMENTS)
         commentListeners[spotId]?.let { listener ->
@@ -428,6 +466,7 @@ class SpotRepository(
 
         // likedBy is stored as a map { "userId": true }
         val likedByKeys = snapshot.child("likedBy").children.mapNotNull { it.key }
+        val savedByKeys = snapshot.child("savedBy").children.mapNotNull { it.key }
 
         return SpotEntity(
             id = snapshot.child("id").getValue(String::class.java) ?: snapshot.key ?: "",
@@ -442,7 +481,8 @@ class SpotRepository(
             locationName = snapshot.child("locationName").getValue(String::class.java),
             timestamp = snapshot.child("timestamp").getValue(Long::class.java) ?: 0L,
             likesCount = snapshot.child("likesCount").getValue(Int::class.java) ?: likedByKeys.size,
-            isLikedByCurrentUser = likedByKeys.contains(currentUserId)
+            isLikedByCurrentUser = likedByKeys.contains(currentUserId),
+            isSavedByCurrentUser = savedByKeys.contains(currentUserId)
         )
     }
 

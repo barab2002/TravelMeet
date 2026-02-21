@@ -10,7 +10,7 @@ import com.travelmeet.app.data.local.entity.UserEntity
 
 @Database(
     entities = [SpotEntity::class, UserEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

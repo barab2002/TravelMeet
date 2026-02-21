@@ -62,6 +62,7 @@ class ProfileFragment : Fragment() {
         setupClickListeners()
         loadUserProfile()
         observeUserSpots()
+        observeSavedSpots()
         observeProfileUpdate()
         observeCommentState()
     }
@@ -78,6 +79,9 @@ class ProfileFragment : Fragment() {
             },
             onCommentClick = { spot ->
                 showAddCommentDialog(spot)
+            },
+            onSaveClick = { spot ->
+                spotViewModel.toggleSave(spot.id)
             }
         )
         binding.rvMySpots.apply {
@@ -93,6 +97,10 @@ class ProfileFragment : Fragment() {
 
         binding.cardMySpots.setOnClickListener {
             findNavController().navigate(R.id.action_profileFragment_to_mySpotsFragment)
+        }
+
+        binding.cardSavedSpots.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_savedSpotsFragment)
         }
 
         binding.cardSettings.setOnClickListener {
@@ -158,6 +166,12 @@ class ProfileFragment : Fragment() {
             binding.tvMySpots.text = getString(R.string.my_spots, spots.size)
             val totalLikes = spots.sumOf { it.likesCount }
             binding.tvTotalLikes.text = getString(R.string.total_likes, totalLikes)
+        }
+    }
+
+    private fun observeSavedSpots() {
+        spotViewModel.savedSpots.observe(viewLifecycleOwner) { spots ->
+            binding.tvSavedSpots.text = getString(R.string.saved_spots_count, spots.size)
         }
     }
 

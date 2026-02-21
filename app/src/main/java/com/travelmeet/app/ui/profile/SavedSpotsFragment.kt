@@ -11,16 +11,16 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.travelmeet.app.R
-import com.travelmeet.app.databinding.FragmentMySpotsBinding
+import com.travelmeet.app.data.local.entity.SpotEntity
+import com.travelmeet.app.databinding.FragmentSavedSpotsBinding
 import com.travelmeet.app.ui.feed.SpotAdapter
-import com.travelmeet.app.ui.viewmodel.AuthViewModel
 import com.travelmeet.app.ui.viewmodel.SpotViewModel
+import com.travelmeet.app.util.Resource
 
-class MySpotsFragment : Fragment() {
+class SavedSpotsFragment : Fragment() {
 
-    private var _binding: FragmentMySpotsBinding? = null
+    private var _binding: FragmentSavedSpotsBinding? = null
     private val binding get() = _binding!!
-    private val authViewModel: AuthViewModel by activityViewModels()
     private val spotViewModel: SpotViewModel by activityViewModels()
     private lateinit var spotAdapter: SpotAdapter
     private var commentDialog: androidx.appcompat.app.AlertDialog? = null
@@ -32,21 +32,21 @@ class MySpotsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentMySpotsBinding.inflate(inflater, container, false)
+        _binding = FragmentSavedSpotsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
-        observeMySpots()
+        observeSavedSpots()
         observeCommentState()
     }
 
     private fun setupRecyclerView() {
         spotAdapter = SpotAdapter(
             onItemClick = { spot ->
-                val action = MySpotsFragmentDirections.actionMySpotsFragmentToSpotDetailFragment(spot.id)
+                val action = SavedSpotsFragmentDirections.actionSavedSpotsFragmentToSpotDetailFragment(spot.id)
                 findNavController().navigate(action)
             },
             onLikeClick = { spot ->
@@ -59,22 +59,19 @@ class MySpotsFragment : Fragment() {
                 spotViewModel.toggleSave(spot.id)
             }
         )
-        binding.rvMySpots.apply {
+        binding.rvSavedSpots.apply {
             adapter = spotAdapter
             layoutManager = LinearLayoutManager(requireContext())
         }
     }
 
-    private fun observeMySpots() {
-        val userId = authViewModel.currentUserId
-        if (userId != null) {
-            spotViewModel.getSpotsByUser(userId).observe(viewLifecycleOwner) { spots ->
-                binding.mySpotsProgressBar.cancelAnimation()
-                binding.mySpotsProgressBar.visibility = View.GONE
-                spotAdapter.submitList(spots)
-                binding.emptyState.visibility = if (spots.isEmpty()) View.VISIBLE else View.GONE
-                binding.rvMySpots.visibility = if (spots.isEmpty()) View.GONE else View.VISIBLE
-            }
+    private fun observeSavedSpots() {
+        spotViewModel.savedSpots.observe(viewLifecycleOwner) { spots ->
+            binding.savedSpotsProgressBar.cancelAnimation()
+            binding.savedSpotsProgressBar.visibility = View.GONE
+            spotAdapter.submitList(spots)
+            binding.emptyState.visibility = if (spots.isEmpty()) View.VISIBLE else View.GONE
+            binding.rvSavedSpots.visibility = if (spots.isEmpty()) View.GONE else View.VISIBLE
         }
     }
 
@@ -82,11 +79,11 @@ class MySpotsFragment : Fragment() {
         spotViewModel.commentState.observe(viewLifecycleOwner) { state ->
             state ?: return@observe
             when (state) {
-                is com.travelmeet.app.util.Resource.Loading -> {
+                is Resource.Loading -> {
                     commentInput?.isEnabled = false
                     commentDialog?.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_submit)?.isEnabled = false
                 }
-                is com.travelmeet.app.util.Resource.Success -> {
+                is Resource.Success -> {
                     Toast.makeText(requireContext(), R.string.comments, Toast.LENGTH_SHORT).show()
                     commentDialog?.dismiss()
                     commentDialog = null
@@ -94,7 +91,7 @@ class MySpotsFragment : Fragment() {
                     pendingCommentSpotId = null
                     spotViewModel.resetCommentState()
                 }
-                is com.travelmeet.app.util.Resource.Error -> {
+                is Resource.Error -> {
                     commentInput?.isEnabled = true
                     commentDialog?.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_submit)?.isEnabled = true
                     Toast.makeText(requireContext(), state.message ?: getString(R.string.error), Toast.LENGTH_LONG).show()
@@ -104,7 +101,7 @@ class MySpotsFragment : Fragment() {
         }
     }
 
-    private fun showAddCommentDialog(spot: com.travelmeet.app.data.local.entity.SpotEntity) {
+    private fun showAddCommentDialog(spot: SpotEntity) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_comment, null)
         val input = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_comment)
         val til = dialogView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.til_comment)
@@ -148,3 +145,4 @@ class MySpotsFragment : Fragment() {
         _binding = null
     }
 }
+
