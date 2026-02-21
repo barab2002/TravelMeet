@@ -44,6 +44,8 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
     private var googleMap: GoogleMap? = null
     private var currentSpot: SpotEntity? = null
     private lateinit var commentsAdapter: CommentsAdapter
+    private var hasBoundSpot = false
+    private var hasCompletedWeatherFetch = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -56,6 +58,10 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.initialLoadingOverlay.visibility = View.VISIBLE
+        binding.initialProgressBar.playAnimation()
+        hasBoundSpot = false
+        hasCompletedWeatherFetch = false
         setupClickListeners()
         setupTabs()
         setupCommentsSection()
@@ -184,6 +190,9 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
             map.addMarker(MarkerOptions().position(location).title(spot.title))
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 14f))
         }
+
+        hasBoundSpot = true
+        hideInitialOverlayIfReady()
     }
 
     private fun observeWeather() {
@@ -206,14 +215,25 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
                         binding.tvWeatherWind.text =
                             getString(R.string.wind_speed, current.windSpeed)
                     }
+                    hasCompletedWeatherFetch = true
+                    hideInitialOverlayIfReady()
                 }
                 is Resource.Error -> {
                     binding.weatherProgress.cancelAnimation()
                     binding.weatherProgress.visibility = View.GONE
                     binding.tvWeatherTemp.text = "N/A"
                     binding.tvTemperature.text = "--"
+                    hasCompletedWeatherFetch = true
+                    hideInitialOverlayIfReady()
                 }
             }
+        }
+    }
+
+    private fun hideInitialOverlayIfReady() {
+        if (hasBoundSpot && hasCompletedWeatherFetch) {
+            binding.initialProgressBar.cancelAnimation()
+            binding.initialLoadingOverlay.visibility = View.GONE
         }
     }
 
@@ -333,6 +353,8 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
     override fun onDestroyView() {
         super.onDestroyView()
         spotViewModel.stopObservingComments(args.spotId)
+        hasBoundSpot = false
+        hasCompletedWeatherFetch = false
         _binding = null
     }
 }
