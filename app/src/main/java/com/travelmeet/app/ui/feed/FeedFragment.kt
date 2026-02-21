@@ -264,6 +264,12 @@ class FeedFragment : Fragment() {
                 rawDistance = rawValue,
                 distanceUnit = unit
             )
+
+            // If a reference location is set, reset sort to default so UI matches distance-based sorting
+            if (referenceLat != null && referenceLng != null) {
+                spotViewModel.setSortOption(SpotSortOption.DEFAULT)
+            }
+
             spotViewModel.setSearchQuery(searchText)
 
             dialog.dismiss()
