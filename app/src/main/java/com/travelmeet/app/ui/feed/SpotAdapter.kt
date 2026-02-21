@@ -29,6 +29,15 @@ class SpotAdapter(
         return SpotViewHolder(binding)
     }
 
+    override fun onBindViewHolder(holder: SpotViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNotEmpty()) {
+            val spot = getItem(position)
+            holder.updateReactions(spot)
+        } else {
+            super.onBindViewHolder(holder, position, payloads)
+        }
+    }
+
     override fun onBindViewHolder(holder: SpotViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
@@ -100,17 +109,29 @@ class SpotAdapter(
                 binding.dotIndicator.visibility = View.GONE
             }
 
-            // Load user avatar
-            if (!spot.userPhotoUrl.isNullOrEmpty()) {
+            // Load user avatar only when URL changes to avoid flicker
+            val currentTag = binding.ivUserAvatar.tag as? String
+            if (spot.userPhotoUrl.isNullOrEmpty()) {
+                if (currentTag != null) {
+                    binding.ivUserAvatar.tag = null
+                    binding.ivUserAvatar.setImageResource(R.drawable.ic_profile)
+                }
+            } else if (currentTag != spot.userPhotoUrl) {
+                binding.ivUserAvatar.tag = spot.userPhotoUrl
                 Picasso.get()
                     .load(spot.userPhotoUrl)
+                    .noFade()
                     .placeholder(R.drawable.ic_profile)
                     .into(binding.ivUserAvatar)
             }
 
+            updateReactions(spot)
+        }
+
+        fun updateReactions(spot: SpotEntity) {
+            binding.tvLikes.text = spot.likesCount.toString()
             val likeIcon = if (spot.isLikedByCurrentUser) R.drawable.ic_like_filled else R.drawable.ic_like_outline
             binding.ivLike.setImageResource(likeIcon)
-
             val saveIcon = if (spot.isSavedByCurrentUser) R.drawable.ic_bookmark_filled else R.drawable.ic_bookmark_outline
             binding.ivSave.setImageResource(saveIcon)
         }
@@ -154,11 +175,23 @@ class SpotAdapter(
         }
     }
 
+    private data class SpotChangePayload(
+        val likesChanged: Boolean,
+        val savesChanged: Boolean
+    )
+
     class SpotDiffCallback : DiffUtil.ItemCallback<SpotEntity>() {
         override fun areItemsTheSame(oldItem: SpotEntity, newItem: SpotEntity): Boolean =
             oldItem.id == newItem.id
 
         override fun areContentsTheSame(oldItem: SpotEntity, newItem: SpotEntity): Boolean =
             oldItem == newItem
+
+        override fun getChangePayload(oldItem: SpotEntity, newItem: SpotEntity): Any? {
+            val likesChanged = oldItem.likesCount != newItem.likesCount ||
+                oldItem.isLikedByCurrentUser != newItem.isLikedByCurrentUser
+            val savesChanged = oldItem.isSavedByCurrentUser != newItem.isSavedByCurrentUser
+            return if (!likesChanged && !savesChanged) null else SpotChangePayload(likesChanged, savesChanged)
+        }
     }
 }

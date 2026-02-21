@@ -159,7 +159,14 @@ class SpotDetailFragment : Fragment(), OnMapReadyCallback {
         }
 
         if (!spot.userPhotoUrl.isNullOrEmpty()) {
-            Picasso.get().load(spot.userPhotoUrl).into(binding.ivUserAvatar)
+            val currentTag = binding.ivUserAvatar.tag as? String
+            if (currentTag != spot.userPhotoUrl) {
+                binding.ivUserAvatar.tag = spot.userPhotoUrl
+                Picasso.get().load(spot.userPhotoUrl).noFade().into(binding.ivUserAvatar)
+            }
+        } else if (binding.ivUserAvatar.tag != null) {
+            binding.ivUserAvatar.tag = null
+            binding.ivUserAvatar.setImageResource(R.drawable.ic_profile)
         }
 
         // Show owner actions
