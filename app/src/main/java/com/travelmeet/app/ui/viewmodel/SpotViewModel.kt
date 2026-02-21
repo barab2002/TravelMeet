@@ -48,6 +48,9 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
     private var referenceLatitude: Double? = null
     private var referenceLongitude: Double? = null
     private var maxDistanceMeters: Double? = null
+    private var lastLocationName: String? = null
+    private var lastDistanceRaw: String? = null
+    private var lastDistanceUnit: String? = null
 
     init {
         val db = AppDatabase.getInstance(application)
@@ -199,11 +202,30 @@ class SpotViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun setReferenceLocation(latitude: Double?, longitude: Double?, maxDistanceMeters: Double? = null) {
+    fun getLastLocationName(): String? = lastLocationName
+    fun getLastDistanceRaw(): String? = lastDistanceRaw
+    fun getLastDistanceUnit(): String? = lastDistanceUnit
+
+    fun setFilters(
+        latitude: Double?,
+        longitude: Double?,
+        maxDistanceMeters: Double?,
+        locationName: String?,
+        rawDistance: String?,
+        distanceUnit: String?
+    ) {
         referenceLatitude = latitude
         referenceLongitude = longitude
         this.maxDistanceMeters = maxDistanceMeters
+        lastLocationName = locationName
+        lastDistanceRaw = rawDistance
+        lastDistanceUnit = distanceUnit
         val option = _sortOption.value ?: SpotSortOption.DEFAULT
         _feedSpots.value = applySorting(option, latestSpots)
+    }
+
+    fun setReferenceLocation(latitude: Double?, longitude: Double?, maxDistanceMeters: Double? = null) {
+        // Keep for backwards compatibility where only distance + ref location are set
+        setFilters(latitude, longitude, maxDistanceMeters, lastLocationName, lastDistanceRaw, lastDistanceUnit)
     }
 }

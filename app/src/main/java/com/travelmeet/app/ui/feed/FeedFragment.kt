@@ -209,6 +209,14 @@ class FeedFragment : Fragment() {
         val distanceValueInput = view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_distance_value)
         val distanceUnitInput = view.findViewById<com.google.android.material.textfield.MaterialAutoCompleteTextView>(R.id.et_distance_unit)
 
+        // Pre-fill from ViewModel if we have previous filters
+        locationInput.setText(spotViewModel.getLastLocationName() ?: "", false)
+        distanceValueInput.setText(spotViewModel.getLastDistanceRaw() ?: "")
+        val lastUnit = spotViewModel.getLastDistanceUnit()
+        if (!lastUnit.isNullOrEmpty()) {
+            distanceUnitInput.setText(lastUnit, false)
+        }
+
         // Simple km/m unit suggestions
         val unitAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, listOf("km", "m"))
         distanceUnitInput.setAdapter(unitAdapter)
@@ -226,13 +234,14 @@ class FeedFragment : Fragment() {
             locationPlaceSelected = false
             referenceLat = null
             referenceLng = null
-            spotViewModel.setReferenceLocation(null, null)
-            // TODO: Clear text-based filters and distance limit in ViewModel when added
+            spotViewModel.setFilters(null, null, null, null, null, null)
         }
 
         applyButton.setOnClickListener {
-            val rawValue = distanceValueInput.text?.toString()?.trim()
-            val unit = distanceUnitInput.text?.toString()?.trim()?.lowercase()
+            val locationText = locationInput.text?.toString()?.trim()?.ifEmpty { null }
+            val rawValue = distanceValueInput.text?.toString()?.trim()?.ifEmpty { null }
+            val unit = distanceUnitInput.text?.toString()?.trim()?.lowercase()?.ifEmpty { null }
+
             val maxDistanceMeters = if (!rawValue.isNullOrEmpty()) {
                 val numeric = rawValue.toDoubleOrNull()
                 if (numeric != null && numeric > 0) {
@@ -244,8 +253,15 @@ class FeedFragment : Fragment() {
                 } else null
             } else null
 
-            // Store reference location and let ViewModel sort/filter locally by distance
-            spotViewModel.setReferenceLocation(referenceLat, referenceLng, maxDistanceMeters)
+            spotViewModel.setFilters(
+                latitude = referenceLat,
+                longitude = referenceLng,
+                maxDistanceMeters = maxDistanceMeters,
+                locationName = locationText,
+                rawDistance = rawValue,
+                distanceUnit = unit
+            )
+
             dialog.dismiss()
         }
 
