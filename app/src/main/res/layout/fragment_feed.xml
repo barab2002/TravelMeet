@@ -59,7 +59,7 @@
         android:id="@+id/feed_initial_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#B3000000"
+        android:background="@color/background"
         android:clickable="true"
         android:focusable="true">
 
