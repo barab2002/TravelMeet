@@ -62,8 +62,8 @@ Users must sign in before accessing the app. All data is scoped to the authentic
 
 **Behind the scenes:** Firebase Authentication handles credentials. On success, user data (username, email, photo URL) is stored in Firebase Realtime Database and cached locally in Room.
 
-![Login Screen](screenshots/login.png)
-![Register Screen](screenshots/register.png)
+![Login Screen](screenshots/login.jpg)
+![Register Screen](screenshots/register.jpg)
 
 ---
 
@@ -83,8 +83,8 @@ The Feed is the home screen — a vertically scrolling list of all spots posted 
 - **Sort and filter** spots using the menu icon (top right)
 - Tap a spot card to open its full detail view
 
-![Feed Screen](screenshots/feed.png)
-![Feed with Image Carousel](screenshots/feed_carousel.png)
+![Feed Screen](screenshots/feed.jpg)
+![Feed with Image Carousel](screenshots/feed_carousel.jpg)
 
 ---
 
@@ -118,9 +118,7 @@ Tap the **＋ Add** button in the bottom navigation to open the spot creation fo
 **Editing an existing spot:**
 From Spot Detail or My Spots, tap the **Edit** button (owner only). The same form pre-fills with existing data — change any field and tap **Update Spot**.
 
-![Add Spot Screen](screenshots/add_spot.png)
-![Image Selection](screenshots/add_spot_images.png)
-![Location Search](screenshots/add_spot_location.png)
+![Add Spot Screen](screenshots/add_spot.jpg)
 
 ---
 
@@ -142,8 +140,8 @@ Tap any spot card in the Feed, Map, My Spots, or Saved Spots to open the full de
 - **Edit** — opens the Add Spot form pre-filled with this spot's data
 - **Delete** — shows a confirmation dialog, then deletes the spot and all its images from Firebase Storage
 
-![Spot Detail](screenshots/spot_detail.png)
-![Spot Detail Map + Weather](screenshots/spot_detail_map_weather.png)
+![Spot Detail](screenshots/spot_detail.jpg)
+![Spot Detail Map + Weather](screenshots/spot_detail_map_weather.jpg)
 
 ---
 
@@ -161,8 +159,8 @@ Tap **Map** in the bottom navigation to see every spot plotted on a Google Map.
 - Tap the **My Location FAB** (bottom right) to animate the camera to your current GPS position
 - On load, the camera automatically fits all spots in view
 
-![Map View](screenshots/map.png)
-![Map Marker Info Window](screenshots/map_marker.png)
+![Map View](screenshots/map.jpg)
+![Map Marker Info Window](screenshots/map_marker.jpg)
 
 ---
 
@@ -178,8 +176,8 @@ Tap **Map** in the bottom navigation to see every spot plotted on a Google Map.
 - Each comment shows: profile avatar, username, comment text, relative timestamp
 - Comments are sorted newest first
 
-![Add Comment Dialog](screenshots/comment_dialog.png)
-![Comments in Detail](screenshots/comments_list.png)
+![Add Comment Dialog](screenshots/comment_dialog.jpg)
+![Comments in Detail](screenshots/comments_list.jpg)
 
 ---
 
@@ -197,7 +195,7 @@ Tap **Map** in the bottom navigation to see every spot plotted on a Google Map.
 - A filled bookmark = saved; outline = not saved
 - Saved count is shown on the Profile screen
 
-![Like and Save Icons](screenshots/like_save.png)
+![Like and Save Icons](screenshots/like_save.jpg)
 
 ---
 
@@ -227,8 +225,8 @@ Tap the **filter icon** (top-right of the Feed) to open sort and filter options.
 - Tap **Clear** to remove all active filters and show all spots
 - A confirmation dialog appears if you switch sort mode while a location filter is active
 
-![Sort Sheet](screenshots/sort_sheet.png)
-![Filter Sheet](screenshots/filter_sheet.png)
+![Sort Sheet](screenshots/sort_sheet.jpg)
+![Filter Sheet](screenshots/filter_sheet.jpg)
 
 ---
 
@@ -248,8 +246,8 @@ Tap **Profile** in the bottom navigation.
 - Tap the **edit icon** next to your name to open the Edit Profile dialog and change your username
 - Changes sync to Firebase and update immediately everywhere your name appears
 
-![Profile Screen](screenshots/profile.png)
-![Edit Profile Dialog](screenshots/edit_profile.png)
+![Profile Screen](screenshots/profile.jpg)
+![Edit Profile Dialog](screenshots/edit_profile.jpg)
 
 ---
 
@@ -272,8 +270,8 @@ Accessible from the Profile screen. Shows all spots you have bookmarked.
 - Tap a spot to open its detail view
 - Tap the bookmark icon again to remove a spot from your saved list
 
-![My Spots Screen](screenshots/my_spots.png)
-![Saved Spots Screen](screenshots/saved_spots.png)
+![My Spots Screen](screenshots/my_spots.jpg)
+![Saved Spots Screen](screenshots/saved_spots.jpg)
 
 ---
 
@@ -285,8 +283,8 @@ Accessible from **Profile → Settings**.
 - The preference is saved in SharedPreferences and persists across app restarts
 - Uses `AppCompatDelegate.setDefaultNightMode()` for system-wide theme switching
 
-![Settings Light](screenshots/settings_light.png)
-![Settings Dark](screenshots/settings_dark.png)
+![Settings Light](screenshots/settings_light.jpg)
+![Settings Dark](screenshots/settings_dark.jpg)
 
 ---
 
@@ -308,7 +306,7 @@ Shown automatically on the **Spot Detail** screen for any spot that has valid co
 - A Lottie spinner shows while fetching
 - If the API call fails or coordinates are missing, all fields gracefully display "N/A"
 
-![Weather Widget](screenshots/weather.png)
+![Weather Widget](screenshots/weather.jpg)
 
 ---
 
