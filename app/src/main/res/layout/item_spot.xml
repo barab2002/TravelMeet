@@ -22,7 +22,9 @@
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/vp_images"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent" >
+
+            </androidx.viewpager2.widget.ViewPager2>
 
             <LinearLayout
                 android:id="@+id/dot_indicator"
@@ -56,6 +58,7 @@
             android:padding="@dimen/spacing_md">
 
             <!-- User Info Row -->
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -135,23 +138,23 @@
 
                 <ImageView
                     android:id="@+id/iv_comment"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="34dp"
+                    android:layout_height="match_parent"
                     android:layout_marginStart="@dimen/spacing_md"
-                    android:background="@drawable/bg_button_circle"
-                    android:padding="6dp"
-                    android:src="@drawable/ic_edit"
-                    app:tint="@color/primary"
-                    android:contentDescription="Add comment" />
+                    android:contentDescription="Add comment"
+                    android:src="@drawable/ic_comment"
+                    app:tint="@color/primary" />
 
                 <ImageView
                     android:id="@+id/iv_save"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_marginStart="@dimen/spacing_md"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="Save spot"
                     android:src="@drawable/ic_bookmark_outline"
-                    app:tint="@color/primary"
-                    android:contentDescription="Save spot" />
+                    app:tint="@color/primary" />
 
                 <ImageView
                     android:id="@+id/iv_like"
